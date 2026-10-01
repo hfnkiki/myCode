@@ -245,32 +245,27 @@
 		font-weight: bold;
 	}
 
-	/* ===== 下載檔案的標籤文字：外框、無項目符號、與左邊有間距 ===== */
-	#todo_fm .fileGroup {
-		display: flex;
-		align-items: center;
-		gap: 10px;
-		padding-left: 25px !important;
-		margin-top: 10px;
+	/* 簽核區塊的標籤不要底色 */
+	#todo_fm .fmlabel.signLabel::before { display: none; }
+	#todo_fm .fmlabel.signLabel {
+		padding: 8px 12px !important;
 	}
-	#todo_fm .fileGroup .fmlabel.fileLabel::before { display: none; }
-	#todo_fm .fileGroup .fmlabel.fileLabel {
-		flex: 0 1 auto;
-		width: auto;
-		max-width: calc(100% - 80px);
-		border: 1px solid #ccc;
-		border-radius: 4px;
-		background: #fff !important;
-		padding: 6px 12px !important;
-		box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+
+	/* 「下載」連結：與「無檔案」相同的灰色膠囊樣式，文字為實際檔名 */
+	#todo_fm .fmData a.fileLink {
+		background-color: #6c757d !important;
+		color: #fff !important;
+		border: none !important;
+		box-shadow: none;
+		padding: 0.35em 0.65em !important;
+		font-size: 0.75em !important;
+		font-weight: 700 !important;
+		border-radius: 50rem !important;
+		display: inline-block;
+		text-decoration: none;
 	}
-	#todo_fm .fileGroup .fmData {
-		flex: 0 0 auto;
-		width: auto;
-		max-width: none;
-		padding: 0;
-		overflow: visible;
-		white-space: nowrap;
+	#todo_fm .fmData a.fileLink:hover {
+		background-color: #5a6268 !important;
 	}
 	#todo_fm .planLabel { align-self: flex-start; }
 </style>
@@ -440,7 +435,7 @@
 					<div class="card-body" style="border: solid #336699 4px; border-top: none; background: #ecf2f9; border-bottom-left-radius: 10px; border-bottom-right-radius: 10px;">
 
 						<div class="row align-items-center mb-3">
-							<div class="fmlabel col-md-2 col-sm-6 col-12 d-flex align-items-center">
+							<div class="fmlabel signLabel col-md-2 col-sm-6 col-12 d-flex align-items-center">
 								<span class="bi bi-caret-right-fill text-primary me-1"></span>
 								{{trans('personal_todo.sign')}}
 							</div>
@@ -482,7 +477,7 @@
 
 						@if(isset($data->backOption) && sizeof($data->backOption))
 							<div id="_backOption" class="row align-items-center mb-3" style="display:none;">
-								<div class="fmlabel col-md-2 col-sm-6 col-12 d-flex align-items-center">
+								<div class="fmlabel signLabel col-md-2 col-sm-6 col-12 d-flex align-items-center">
 									<span class="bi bi-caret-right-fill text-primary me-1"></span>
 									{{trans('personal_todo.backOption')}}
 								</div>
@@ -503,7 +498,7 @@
 						@endif
 
 						<div class="row align-items-start mt-2">
-							<div class="fmlabel col-md-2 col-sm-6 col-12 d-flex mt-2">
+							<div class="fmlabel signLabel col-md-2 col-sm-6 col-12 d-flex mt-2">
 								<span class="bi bi-caret-right-fill text-primary me-1"></span>
 								{{trans('personal_todo.signMsg')}}
 							</div>
@@ -586,7 +581,7 @@ for(var ii = 5; ii < 13; ii++) {
  * 依表單內容自動調整版面（不同表單的欄位數量/結構不同）：
  *  1. 計畫資料 (一)~(五) 重組為由上而下，且與標籤同列(標籤在左、內容在右)
  *  2. 其他含表格的欄位撐滿整列
- *  3. 下載檔案：標籤 + 按鈕包成一組，標籤無項目符號、有外框
+ *  3. 下載連結改顯示實際檔名，標籤與其他欄位一致
  *  4. 標籤去除項目符號、跨欄標題列置中上色
  *  5. 簽核/簽核紀錄卡片對齊上方表單卡片的寬度
  */
@@ -689,20 +684,18 @@ for(var ii = 5; ii < 13; ii++) {
 		if(node.length) node[0].nodeValue = node[0].nodeValue.replace(/^[\s •·]+/, "");
 	});
 
-	// ---- 下載檔案：標籤 + 按鈕一組
-	$("#todo_fm .fmData").each(function(){
-		var $d = $(this);
-		if($d.find("table").length) return;
-		// 只有「下載」按鈕形式的欄位才用外框標籤；
-		// 有檔名連結(.manyFiles)或「無檔案」的欄位維持一般 th 樣式
-		var isFile = $d.find(".manyFiles").length === 0
-			&& $d.find("a").filter(function(){ return $.trim($(this).text()) === "下載"; }).length > 0;
-		var $l = $d.prev(".fmlabel");
-		if(!isFile || !$l.length) return;
-		$l.addClass("fileLabel");
-		setCol($l, "");
-		setCol($d, "");
-		$l.add($d).wrapAll('<div class="fileGroup col-md-4 col-sm-6 col-12"></div>');
+	// ---- 「下載」連結改顯示實際檔名(取 download / title / data-* / href 檔名)
+	$("#todo_fm .fmData a").each(function(){
+		var $a = $(this);
+		if($.trim($a.text()) !== "下載") return;
+		var name = $a.attr("download") || $a.attr("data-filename") || $a.attr("data-name") || $a.attr("title");
+		if(!name) {
+			var href = ($a.attr("href") || "").split("?")[0].split("/").pop();
+			try { href = decodeURIComponent(href); } catch(e) {}
+			if(/\.[A-Za-z0-9]{2,5}$/.test(href)) name = href;
+		}
+		if(name) $a.text(name);
+		$a.addClass("fileLink");
 	});
 
 	// ---- 標題列(單一跨欄儲存格)
