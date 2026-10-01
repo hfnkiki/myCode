@@ -193,6 +193,16 @@
 	#todo_fm .planBox table {
 		margin: 0;
 	}
+	/* 被拆開的項目：取消原本的並排設定(float/固定寬/inline-block) */
+	#todo_fm .planBox .planSplit,
+	#todo_fm .planBox .planSplit > * {
+		float: none !important;
+		display: block !important;
+		width: auto !important;
+		max-width: 100% !important;
+		margin: 0 !important;
+		text-align: left !important;
+	}
 
 	/* html 內自帶的 .container 會被限制在 1320px，造成比簽核區窄 → 一律撐滿 */
 	#todo_fm .fmData .container,
@@ -575,6 +585,40 @@ for(var ii = 5; ii < 13; ii++) {
 		$e.removeClass(function(i, c){ return (c.match(colRe) || []).join(" "); }).addClass(cls);
 	}
 
+	// 把一個儲存格裡「並排」的項目拆成陣列(每項一段 html)
+	var wrapTags = "div, ul, ol, p, tbody, tr, td, th, table, section, span.row";
+	function nodeHtml(n) { return $("<div></div>").append($(n).clone()).html(); }
+	function hasContent(n) {
+		if(n.nodeType === 3) return $.trim(n.nodeValue) !== "";
+		if(n.nodeType !== 1) return false;
+		return $.trim($(n).text()) !== "" || $(n).is("input, img, select, textarea, a");
+	}
+	function splitItems($el) {
+		var kids = $el.contents().filter(function(){ return hasContent(this); }).toArray();
+		if(kids.length === 0) return [];
+		if(kids.length === 1 && kids[0].nodeType === 1 && $(kids[0]).is(wrapTags)) {
+			var $o = $(kids[0]);
+			if($o.is("table")) {
+				var out = [];
+				$o.find("td, th").each(function(){
+					if($(this).find("table").length) return;
+					out = out.concat(splitItems($(this)));
+				});
+				return out;
+			}
+			return splitItems($o);
+		}
+		if(kids.length === 1) return [$el.html()];
+		var items = [], buf = "";
+		$.each(kids, function(i, n){
+			buf += nodeHtml(n);
+			// 以「：」結尾的是標題，與下一個節點合併成同一項
+			if(!/[：:]\s*$/.test($(n).text() || n.nodeValue || "")) { items.push(buf); buf = ""; }
+		});
+		if(buf) items.push(buf);
+		return items;
+	}
+
 	// ---- 計畫資料表格重組：(一)~(五) 都放進同一個框
 	var noRe = /^[\s　]*[（(][一二三四五][）)]/;
 	$("#todo_fm .fmData table").each(function(){
@@ -586,10 +630,11 @@ for(var ii = 5; ii < 13; ii++) {
 		});
 		if(!found) return;
 
-		var $box = $('<div class="planBox"></div>'), $sec = null;
+		var $box = $('<div class="planBox"></div>'), $sec = null, isFive = false;
 		$t.find("tr").each(function(){
 			var $cells = $(this).children("td, th"), $first = $cells.first();
 			if(noRe.test($first.text())) {
+				isFive = /五/.test($first.text());
 				$sec = $('<div class="planSec"><div class="planNo"></div><div class="planBody"></div></div>');
 				$sec.find(".planNo").text($.trim($first.text()).replace(/[（）]/g, function(c){ return c === "（" ? "(" : ")"; }));
 				$box.append($sec);
@@ -599,7 +644,16 @@ for(var ii = 5; ii < 13; ii++) {
 			$cells.each(function(){
 				var $c = $(this);
 				if($.trim($c.text()) === "" && $c.find("input, img, a, select, textarea").length === 0) return;
-				$sec.find(".planBody").append($('<div class="planItem"></div>').html($c.html()));
+				if(isFive) {
+					// (五) 金額表保留原本欄位結構
+					$sec.find(".planBody").append($('<div class="planItem"></div>').html($c.html()));
+				}
+				else {
+					// (一)~(四)：把並排的每一項拆開，各佔一行
+					$.each(splitItems($c), function(i, h){
+						$sec.find(".planBody").append($('<div class="planItem planSplit"></div>').html(h));
+					});
+				}
 			});
 		});
 		var $d = $t.closest(".fmData");
