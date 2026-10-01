@@ -133,33 +133,75 @@
 		border: 1px solid #eeddc8 !important;
 	}
 
-	/* ===== 計畫資料 (一)~(四)：由上而下排列 ，(五)維持原樣 =====
-	   由 JS 為列加上 .stackRow；第一格(編號)靠左，其餘儲存格往下堆疊 */
-	#todo_fm .fmData table tr.stackRow {
-		display: grid;
-		grid-template-columns: 56px minmax(0, 1fr);
+	/* ===== 計畫資料 (一)~(四)：由上而下排列，(五)維持原表格 (結構由 JS 重組為 .planBox) ===== */
+	#todo_fm .planBox {
+		width: 100%;
+		margin: 10px 0 15px;
 		border: 1px solid #dee2e6;
 	}
-	#todo_fm .fmData table tr.stackRow > td {
-		display: block;
-		border: none !important;
-		grid-column: 2;
-		width: auto !important;
-		text-align: left;
-		padding: 4px 8px !important;
+	#todo_fm .planBox .planSec {
+		display: flex;
+		border-bottom: 1px solid #dee2e6;
 	}
-	#todo_fm .fmData table tr.stackRow > td:first-child {
-		grid-column: 1;
-		grid-row: 1 / span 30;
+	#todo_fm .planBox .planSec:last-child {
+		border-bottom: none;
+	}
+	#todo_fm .planBox .planNo {
+		flex: 0 0 56px;
 		background-color: #fff5ea;
+		border-right: 1px solid #eeddc8;
 		font-weight: bold;
 		text-align: center;
-		border-right: 1px solid #eeddc8 !important;
+		padding: 8px 4px;
 	}
-	/* 儲存格內若有並排的 span/div，一併改為逐行 */
-	#todo_fm .fmData table tr.stackRow > td > span,
-	#todo_fm .fmData table tr.stackRow > td > div {
-		display: block;
+	#todo_fm .planBox .planBody {
+		flex: 1 1 auto;
+		min-width: 0;
+		padding: 6px 12px;
+	}
+	#todo_fm .planBox .planItem {
+		padding: 3px 0;
+		text-align: left;
+		word-break: break-word;
+	}
+	#todo_fm .planBox table {
+		margin: 0;
+	}
+
+	/* ===== 區段標題：不論外層是 label 欄位或 html 內自帶的標題都套用 ===== */
+	#todo_fm .labelDiv,
+	#todo_fm .text-primary.border-bottom {
+		background-color: #fcebd7 !important;
+		color: #333 !important;
+		text-align: center !important;
+		border-bottom: none !important;
+		padding: 10px !important;
+		font-weight: bold !important;
+		border-radius: 4px;
+		width: 100%;
+	}
+
+	/* html 內自帶的 .container 會被限制在 1320px，造成比簽核區窄 → 一律撐滿 */
+	#todo_fm .fmData .container,
+	#todo_fm .fmData .container-sm,
+	#todo_fm .fmData .container-md,
+	#todo_fm .fmData .container-lg,
+	#todo_fm .fmData .container-xl,
+	#todo_fm .fmData .container-xxl {
+		max-width: 100% !important;
+		width: 100% !important;
+		padding-left: 0 !important;
+		padding-right: 0 !important;
+	}
+
+	/* ===== 下載檔案的標籤文字：外框、無項目符號、與左邊有間距 ===== */
+	#todo_fm .fmlabel.fileLabel {
+		border: 1px solid #ccc;
+		border-radius: 4px;
+		background-color: #fff;
+		padding: 6px 12px;
+		margin-left: 12px;
+		box-shadow: 0 1px 3px rgba(0,0,0,0.05);
 	}
 </style>
 
@@ -472,39 +514,76 @@ for(var ii = 5; ii < 13; ii++) {
 
 /*
  * 依表單內容自動調整版面（不同表單的欄位數量/結構不同）：
- *  1. 欄位內含表格 → 該欄位撐滿整列，標籤移到上方，避免表格被擠窄而跑版
- *  2. 計畫資料 (一)~(四) 的列改為由上而下排列，(五) 以後保持原表格
- *  3. 單一跨欄儲存格的列(如「勞健退資料」)視為標題：置中 + 大地色底
+ *  1. 欄位內含表格 → 該欄位撐滿整列，標籤移到上方
+ *  2. 計畫資料 (一)~(四) 重組為由上而下，(五) 維持原表格
+ *  3. 下載檔案欄位：標籤去掉項目符號並加外框
+ *  4. 單一跨欄儲存格的列視為標題：置中 + 大地色底
  */
 (function(){
-	var numRe = /^[\s　]*[（(][一二三四][）)]/;
+	var colRe = /(^|\s)col-(md|sm)-\d+/g;
+	function fullWidth($e) {
+		$e.removeClass(function(i, c){ return (c.match(colRe) || []).join(" "); }).addClass("col-12");
+	}
 
 	$("#todo_fm .fmData").has("table").each(function(){
-		var $d = $(this);
-		$d.removeClass(function(i, c){ return (c.match(/(^|\s)col-(md|sm)-\d+/g) || []).join(" "); })
-		  .addClass("col-12");
-		var $l = $d.prev(".fmlabel");
-		if($l.length) {
-			$l.removeClass(function(i, c){ return (c.match(/(^|\s)col-(md|sm)-\d+/g) || []).join(" "); })
-			  .addClass("col-12");
-		}
+		fullWidth($(this));
+		fullWidth($(this).prev(".fmlabel"));
 	});
 
-	$("#todo_fm .fmData table tr").each(function(){
-		var $tr = $(this), $tds = $tr.children("td, th");
+	// ---- 計畫資料表格重組
+	var noRe = /^[\s\u3000]*[（(]([一二三四五])[）)]/;
+	$("#todo_fm .fmData table").each(function(){
+		var $t = $(this), found = false;
+		$t.find("tr").each(function(){
+			var c = $(this).children("td, th").first();
+			if(c.length && noRe.test(c.text())) { found = true; return false; }
+		});
+		if(!found || $t.parents("table").length) return;
 
-		// 計畫資料 (一)~(四)
-		if($tds.length > 1 && numRe.test($tds.first().text())) {
-			$tr.addClass("stackRow");
-			return;
-		}
-		// 標題列：只有一個跨欄儲存格，且內容是純文字、很短
-		if($tds.length === 1 && $tds.first().is("td")
-				&& parseInt($tds.first().attr("colspan") || "1", 10) > 1
-				&& $.trim($tds.first().text()).length > 0
-				&& $.trim($tds.first().text()).length <= 20
-				&& $tds.first().find("input, select, textarea, table").length === 0) {
-			$tds.first().addClass("tableTitle");
+		var $box = $('<div class="planBox"></div>'), $sec = null, $five = null;
+		$t.find("tr").each(function(){
+			var $cells = $(this).children("td, th"), $first = $cells.first(), m = noRe.exec($first.text());
+			if(m && m[1] === "五") {
+				if(!$five) { $five = $('<table class="planFive"><tbody></tbody></table>'); $box.append($five); }
+				$five.find("tbody").append($(this).clone());
+				$sec = null;
+				return;
+			}
+			if($five) { $five.find("tbody").append($(this).clone()); return; }
+			if(m) {
+				$sec = $('<div class="planSec"><div class="planNo"></div><div class="planBody"></div></div>');
+				$sec.find(".planNo").text($.trim($first.text()));
+				$box.append($sec);
+				$cells = $cells.not($first);
+			}
+			if(!$sec) return;
+			$cells.each(function(){
+				var $c = $(this);
+				if($.trim($c.text()) === "" && $c.find("input, img, a, select, textarea").length === 0) return;
+				$sec.find(".planBody").append($('<div class="planItem"></div>').html($c.html()));
+			});
+		});
+		$t.replaceWith($box);
+	});
+
+	// ---- 下載檔案標籤
+	$("#todo_fm .fmData").each(function(){
+		var $d = $(this), $a = $d.find("a");
+		var isFile = $a.filter(function(){
+			return /download/i.test($(this).attr("href") || "") || $.trim($(this).text()) === "下載";
+		}).length > 0;
+		if(!isFile || $d.find("table").length) return;
+		var $l = $d.prev(".fmlabel");
+		if(!$l.length) return;
+		$l.text($.trim($l.text()).replace(/^[•·\s]+/, "")).addClass("fileLabel");
+	});
+
+	// ---- 標題列(單一跨欄儲存格)
+	$("#todo_fm .fmData table tr").each(function(){
+		var $tds = $(this).children("td, th"), $c = $tds.first(), t = $.trim($c.text());
+		if($tds.length === 1 && $c.is("td") && parseInt($c.attr("colspan") || "1", 10) > 1
+				&& t.length > 0 && t.length <= 20 && $c.find("input, select, textarea, table").length === 0) {
+			$c.addClass("tableTitle");
 		}
 	});
 })();
