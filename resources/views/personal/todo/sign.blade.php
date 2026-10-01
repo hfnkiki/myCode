@@ -1,6 +1,6 @@
 @extends('layout.defaultBS5')
 @section('content')
-<!-- sign-view-rev: 2026-10-01-r13 -->
+<!-- sign-view-rev: 2026-10-01-r14 -->
 <style>
 	#todo_fm .card-body .row {
 		margin-top: 10px;
@@ -64,7 +64,7 @@
 		bottom: 0;
 		left: 12px;
 		right: 12px;
-		background-color: #fcebd7;
+		background-color: #fff5ea;
 		border-radius: 4px;
 		z-index: -1;
 	}
@@ -573,7 +573,7 @@
 					</div>
 					@else
 						<div class="text-center fw-bold">
-							<p class='alert alert-warning mb-0' style="background-color: #fdf5e6; border-color: #faebd7; color: #8a6d3b;">{{trans('personal_todo.noSignRecord')}}</p>
+							<p class='alert alert-warning mb-0' style="background-color: #fff5ea; border-color: #faebd7; color: #8a6d3b;">{{trans('personal_todo.noSignRecord')}}</p>
 						</div>
 					@endif
 				</div>

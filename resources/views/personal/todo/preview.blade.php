@@ -1,6 +1,6 @@
 @extends('layout.default')
 @section("content")
-<!-- preview-view-rev: 2026-10-01-r3 -->
+<!-- preview-view-rev: 2026-10-01-r4 -->
 <style>
 	/* 本頁為 Bootstrap 3 版型(panel / col-xs-*)：沿用簽核頁(sign)的樣式，gutter 為 15px */
 	#prev_fm .row {
@@ -35,7 +35,7 @@
 		bottom: 0;
 		left: 15px;
 		right: 15px;
-		background-color: #fcebd7;
+		background-color: #fff5ea;
 		border-radius: 4px;
 		z-index: -1;
 	}
