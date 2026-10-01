@@ -1,6 +1,6 @@
 @extends('layout.defaultBS5')
 @section('content')
-<!-- sign-view-rev: 2026-10-01-r7 -->
+<!-- sign-view-rev: 2026-10-01-r8 -->
 <style>
 	#todo_fm .card-body .row {
 		margin-top: 10px;
@@ -252,22 +252,23 @@
 		padding: 8px 12px !important;
 	}
 
-	/* 「下載」連結：與「無檔案」相同的灰色膠囊樣式，文字為實際檔名 */
+	/* 「下載」連結：白底方框 + 較大文字，文字為實際檔名 */
 	#todo_fm .fmData a.fileLink {
-		background-color: #6c757d !important;
-		color: #fff !important;
-		border: none !important;
+		background-color: #fff !important;
+		color: #333 !important;
+		border: 1px solid #aaa !important;
+		border-radius: 4px !important;
 		box-shadow: none;
-		padding: 0.35em 0.65em !important;
-		font-size: 0.75em !important;
-		font-weight: 700 !important;
-		border-radius: 50rem !important;
+		padding: 5px 12px !important;
+		font-size: 1rem !important;
+		font-weight: normal !important;
 		display: inline-block;
 		text-decoration: none;
 	}
 	#todo_fm .fmData a.fileLink:hover {
-		background-color: #5a6268 !important;
+		background-color: #f5f5f5 !important;
 	}
+
 	#todo_fm .planLabel { align-self: flex-start; }
 </style>
 
