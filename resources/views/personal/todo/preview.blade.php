@@ -1,6 +1,6 @@
 @extends('layout.default')
 @section("content")
-<!-- preview-view-rev: 2026-10-01-r1 -->
+<!-- preview-view-rev: 2026-10-01-r2 -->
 <style>
 	/* 本頁為 Bootstrap 3 版型(panel / col-xs-*)：沿用簽核頁(sign)的樣式，gutter 為 15px */
 	#prev_fm .row {
@@ -17,6 +17,9 @@
 	#prev_fm .fmlabel,
 	#prev_fm .panel-divide {
 		position: relative;
+		min-width: 0;
+		overflow-wrap: anywhere;   /* 長英文欄位名(如 ps1HolderBossUnitType)換行，不超出 th */
+		word-break: break-word;
 		isolation: isolate;
 		background: transparent !important;
 		color: #333 !important;

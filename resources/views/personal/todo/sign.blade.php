@@ -1,6 +1,6 @@
 @extends('layout.defaultBS5')
 @section('content')
-<!-- sign-view-rev: 2026-10-01-r11 -->
+<!-- sign-view-rev: 2026-10-01-r12 -->
 <style>
 	#todo_fm .card-body .row {
 		margin-top: 10px;
@@ -44,6 +44,9 @@
 	#todo_fm .labelDiv,
 	#todo_fm .text-primary.border-bottom {
 		position: relative;
+		min-width: 0;
+		overflow-wrap: anywhere;
+		word-break: break-word;
 		isolation: isolate;
 		background: transparent !important;
 		color: #333 !important;
