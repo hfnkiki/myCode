@@ -36,13 +36,33 @@
 	}
 
 	/* ===== 簽核內容(上方卡片)：標籤欄大地色底 ===== */
+	/* 標籤/標題的底色用 ::before 畫在 col 內距之內，
+	   這樣所有 th 的左右邊界都與欄位(input)對齊，也不會超出外框 */
 	#todo_div .card-body .fmlabel,
-	#todo_fm .fmlabel {
-		background-color: #fcebd7;
-		color: #333;
+	#todo_fm .fmlabel,
+	#todo_fm .labelDiv,
+	#todo_fm .text-primary.border-bottom {
+		position: relative;
+		isolation: isolate;
+		background: transparent !important;
+		color: #333 !important;
 		font-weight: bold;
-		padding: 8px 12px;
+		padding: 8px 24px !important;
+		box-sizing: border-box;
+	}
+	#todo_div .card-body .fmlabel::before,
+	#todo_fm .fmlabel::before,
+	#todo_fm .labelDiv::before,
+	#todo_fm .text-primary.border-bottom::before {
+		content: "";
+		position: absolute;
+		top: 0;
+		bottom: 0;
+		left: 12px;
+		right: 12px;
+		background-color: #fcebd7;
 		border-radius: 4px;
+		z-index: -1;
 	}
 	#todo_div .card-body .fmData {
 		padding: 8px 12px;
@@ -66,15 +86,10 @@
 		max-width: 100%;
 	}
 
-	/* ===== 區段標題(label) ===== */
-	#todo_fm .card-body .labelDiv {
-		background-color: #fcebd7 !important;
-		color: #333 !important;
+	#todo_fm .labelDiv,
+	#todo_fm .text-primary.border-bottom {
 		text-align: center !important;
 		border-bottom: none !important;
-		padding: 10px !important;
-		font-weight: bold;
-		border-radius: 4px;
 		margin-bottom: 15px !important;
 	}
 
@@ -169,24 +184,6 @@
 		margin: 0;
 	}
 
-	/* ===== 區段標題：不論外層是 label 欄位或 html 內自帶的標題都套用 ===== */
-	#todo_fm .labelDiv,
-	#todo_fm .text-primary.border-bottom {
-		background-color: #fcebd7 !important;
-		color: #333 !important;
-		text-align: center !important;
-		border-bottom: none !important;
-		padding: 10px !important;
-		font-weight: bold !important;
-		border-radius: 4px;
-		box-sizing: border-box;
-		margin-left: 12px !important;
-		margin-right: 12px !important;
-		flex: 0 0 calc(100% - 24px) !important;
-		width: calc(100% - 24px) !important;
-		max-width: calc(100% - 24px) !important;
-	}
-
 	/* html 內自帶的 .container 會被限制在 1320px，造成比簽核區窄 → 一律撐滿 */
 	#todo_fm .fmData .container,
 	#todo_fm .fmData .container-sm,
@@ -225,14 +222,15 @@
 		padding-left: 25px !important;
 		margin-top: 10px;
 	}
+	#todo_fm .fileGroup .fmlabel.fileLabel::before { display: none; }
 	#todo_fm .fileGroup .fmlabel.fileLabel {
 		flex: 0 1 auto;
 		width: auto;
 		max-width: calc(100% - 80px);
 		border: 1px solid #ccc;
 		border-radius: 4px;
-		background-color: #fff;
-		padding: 6px 12px;
+		background: #fff !important;
+		padding: 6px 12px !important;
 		box-shadow: 0 1px 3px rgba(0,0,0,0.05);
 	}
 	#todo_fm .fileGroup .fmData {
