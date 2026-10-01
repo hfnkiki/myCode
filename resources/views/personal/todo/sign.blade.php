@@ -1,6 +1,6 @@
 @extends('layout.defaultBS5')
 @section('content')
-<!-- sign-view-rev: 2026-10-01-r15 -->
+<!-- sign-view-rev: 2026-10-01-r16 -->
 <style>
 	#todo_fm .card-body .row {
 		margin-top: 10px;
@@ -738,13 +738,19 @@ for(var ii = 5; ii < 13; ii++) {
 		}
 	});
 
-	// ---- 嵌在欄位 html 裡、沒有外層內距而貼齊左右邊緣的 row(如勞健退資料區塊)：左右補 16px 內距，
-	//      與一般區塊(如受雇者資料)的間距一致；已由上方判定為貼邊下載欄位的 row 不處理
-	$("#todo_fm .fmData .row").not(":has(.fileBleed)").each(function(){
-		var p = this.parentElement;
+	// ---- 貼齊左右邊緣的 row(如勞健退資料區塊)：左右補 16px 內距，與一般區塊(如受雇者資料)的間距一致。
+	//      判定方式(符合任一)：①外層元素的左內距不足以抵消 row 的負邊距 ②row 的內縮後左緣貼著所屬卡片邊框
+	//      已判定為貼邊下載欄位(.fileBleed)的 row、簽核區塊不處理
+	$("#todo_fm .row").not(".alignCard .row").not(":has(.fileBleed)").each(function(){
+		var p = this.parentElement, $card = $(this).closest(".card");
 		if(!p) return;
 		var pl = parseFloat($(p).css("paddingLeft")) || 0, ml = parseFloat($(this).css("marginLeft")) || 0;
-		if(ml < 0 && pl < -ml) $(this).addClass("nestedRow");
+		var bleed = ml < 0 && pl < -ml;
+		if(!bleed && $card.length) {
+			var cl = $card[0].getBoundingClientRect().left + (parseFloat($card.css("borderLeftWidth")) || 0);
+			bleed = (this.getBoundingClientRect().left - ml - cl) < 8;   // row 內容區左緣(扣掉負邊距)離卡片邊框的距離
+		}
+		if(bleed) $(this).addClass("nestedRow");
 	});
 
 	// ---- 標題列(單一跨欄儲存格)

@@ -1,6 +1,6 @@
 @extends('layout.default')
 @section("content")
-<!-- preview-view-rev: 2026-10-01-r5 -->
+<!-- preview-view-rev: 2026-10-01-r4 -->
 <style>
 	/* 本頁為 Bootstrap 3 版型(panel / col-xs-*)：沿用簽核頁(sign)的樣式，gutter 為 15px */
 	#prev_fm .row {
@@ -182,11 +182,6 @@
 		max-width: 100% !important;
 		margin: 0 !important;
 		text-align: left !important;
-	}
-	/* 貼邊的嵌套 row：補內距，標籤與區段標題不再貼著左右邊 */
-	#prev_fm .nestedRow {
-		padding-left: 16px;
-		padding-right: 16px;
 	}
 	#prev_fm .planLabel { align-self: flex-start; }
 
@@ -387,15 +382,6 @@ for(ii = 5; ii < 13; ii++)
 		else {
 			setCol($d, "col-md-4 col-sm-6 col-xs-12");
 		}
-	});
-
-	// ---- 嵌在欄位 html 裡、沒有外層內距而貼齊左右邊緣的 row(如勞健退資料區塊)：左右補 16px 內距，
-	//      與一般區塊(如受雇者資料)的間距一致；已由上方判定為貼邊下載欄位的 row 不處理
-	$("#prev_fm .fmData .row").not(":has(.fileBleed)").each(function(){
-		var p = this.parentElement;
-		if(!p) return;
-		var pl = parseFloat($(p).css("paddingLeft")) || 0, ml = parseFloat($(this).css("marginLeft")) || 0;
-		if(ml < 0 && pl < -ml) $(this).addClass("nestedRow");
 	});
 
 	// ---- 標題列(單一跨欄儲存格)
