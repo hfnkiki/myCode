@@ -1,6 +1,6 @@
 @extends('layout.defaultBS5')
 @section('content')
-<!-- sign-view-rev: 2026-10-01-r10 -->
+<!-- sign-view-rev: 2026-10-01-r11 -->
 <style>
 	#todo_fm .card-body .row {
 		margin-top: 10px;
@@ -269,17 +269,18 @@
 		background-color: #f5f5f5 !important;
 	}
 
-	/* 下載欄位：一行兩組 (標籤 2 欄 + 按鈕 4 欄)，標籤與左邊留 25px */
-	#todo_fm .fmlabel.fileLabel {
+	/* 下載欄位在「貼齊卡片邊緣」的區塊(JS 偵測後加 .fileBleed)：
+	   標籤加寬為 4 欄、與左邊留 25px，按鈕欄 2 欄 → 一行兩組 */
+	#todo_fm .fmlabel.fileBleed {
 		margin-left: 25px;
 		flex: 0 0 auto;
 		width: calc(50% - 25px);
 		max-width: calc(50% - 25px);
 	}
 	@media (min-width: 768px) {
-		#todo_fm .fmlabel.fileLabel {
-			width: calc(16.66666667% - 25px);
-			max-width: calc(16.66666667% - 25px);
+		#todo_fm .fmlabel.fileBleed {
+			width: calc(33.33333333% - 25px);
+			max-width: calc(33.33333333% - 25px);
 		}
 	}
 	#todo_fm .planLabel { align-self: flex-start; }
@@ -712,11 +713,21 @@ for(var ii = 5; ii < 13; ii++) {
 		if(name) $a.text(name);
 		$a.addClass("fileLink");
 
-		// 一行兩組：標籤(2) + 下載按鈕欄(4)
+		// 一行兩組。一般區塊：標籤 2 欄 + 按鈕 4 欄；
+		// 貼齊卡片邊緣的區塊(row 沒有內距而外露)：標籤 4 欄 + 按鈕 2 欄，並與左邊留 25px
 		var $d = $a.closest(".fmData");
 		if($d.find("table").length) return;
-		setCol($d, "col-md-4 col-sm-6 col-12");
-		$d.prev(".fmlabel").addClass("fileLabel");
+		var $l = $d.prev(".fmlabel"), $row = $d.closest(".row"), $card = $d.closest(".card");
+		var bleed = $row.length && $card.length
+			&& ($row[0].getBoundingClientRect().left + 12 - $card[0].getBoundingClientRect().left) < 8;
+		if(bleed) {
+			setCol($l, "col-md-4 col-sm-6 col-12");
+			setCol($d, "col-md-2 col-sm-6 col-12");
+			$l.addClass("fileBleed");
+		}
+		else {
+			setCol($d, "col-md-4 col-sm-6 col-12");
+		}
 	});
 
 	// ---- 標題列(單一跨欄儲存格)
