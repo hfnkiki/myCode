@@ -36,7 +36,8 @@
 	}
 
 	/* ===== 簽核內容(上方卡片)：標籤欄大地色底 ===== */
-	#todo_div .card-body .fmlabel {
+	#todo_div .card-body .fmlabel,
+	#todo_fm .fmlabel {
 		background-color: #fcebd7;
 		color: #333;
 		font-weight: bold;
@@ -178,7 +179,12 @@
 		padding: 10px !important;
 		font-weight: bold !important;
 		border-radius: 4px;
-		width: 100%;
+		box-sizing: border-box;
+		margin-left: 12px !important;
+		margin-right: 12px !important;
+		flex: 0 0 calc(100% - 24px) !important;
+		width: calc(100% - 24px) !important;
+		max-width: calc(100% - 24px) !important;
 	}
 
 	/* html 內自帶的 .container 會被限制在 1320px，造成比簽核區窄 → 一律撐滿 */
@@ -194,15 +200,50 @@
 		padding-right: 0 !important;
 	}
 
+	/* 學歷/經歷等一般表格往內縮 10px，不貼邊 */
+	#todo_fm .fmData table {
+		margin-left: 10px;
+		width: calc(100% - 20px);
+	}
+	#todo_fm .planBox table {
+		margin: 0;
+		width: 100%;
+	}
+	#todo_fm th,
+	#signRecordTable th {
+		background-color: #fff5ea !important;
+		color: #333 !important;
+		text-align: center;
+		font-weight: bold;
+	}
+
 	/* ===== 下載檔案的標籤文字：外框、無項目符號、與左邊有間距 ===== */
-	#todo_fm .fmlabel.fileLabel {
+	#todo_fm .fileGroup {
+		display: flex;
+		align-items: center;
+		gap: 10px;
+		padding-left: 25px !important;
+		margin-top: 10px;
+	}
+	#todo_fm .fileGroup .fmlabel.fileLabel {
+		flex: 0 1 auto;
+		width: auto;
+		max-width: calc(100% - 80px);
 		border: 1px solid #ccc;
 		border-radius: 4px;
 		background-color: #fff;
 		padding: 6px 12px;
-		margin-left: 12px;
 		box-shadow: 0 1px 3px rgba(0,0,0,0.05);
 	}
+	#todo_fm .fileGroup .fmData {
+		flex: 0 0 auto;
+		width: auto;
+		max-width: none;
+		padding: 0;
+		overflow: visible;
+		white-space: nowrap;
+	}
+	#todo_fm .planLabel { align-self: flex-start; }
 </style>
 
 <div class="row mb-3">
@@ -240,24 +281,24 @@
 				</div>
 				<div class="card-body pt-2">
 					<div class="row align-items-center">
-						<div class="fmlabel col-md-2 col-sm-6 col-12">•&nbsp;{{trans('personal_todo.flowName')}}</div>
+						<div class="fmlabel col-md-2 col-sm-6 col-12">{{trans('personal_todo.flowName')}}</div>
 						<div class="col-md-4 col-sm-6 col-12 fmData">{{$data->flowName}}</div>
 
-						<div class="fmlabel col-md-2 col-sm-6 col-12">•&nbsp;{{trans('personal_todo.formSubj')}}</div>
+						<div class="fmlabel col-md-2 col-sm-6 col-12">{{trans('personal_todo.formSubj')}}</div>
 						<div class="col-md-4 col-sm-6 col-12 fmData">{{$data->formSubj}}</div>
 					</div>
 					<div class="row align-items-center">
-						<div class="fmlabel col-md-2 col-sm-6 col-12">•&nbsp;{{trans('personal_todo.pointName')}}</div>
+						<div class="fmlabel col-md-2 col-sm-6 col-12">{{trans('personal_todo.pointName')}}</div>
 						<div class="col-md-4 col-sm-6 col-12 fmData">{{$data->pointName}}</div>
 
-						<div class="fmlabel col-md-2 col-sm-6 col-12">•&nbsp;{{trans('personal_todo.pointType')}}</div>
+						<div class="fmlabel col-md-2 col-sm-6 col-12">{{trans('personal_todo.pointType')}}</div>
 						<div class="col-md-4 col-sm-6 col-12 fmData">{{trans('personal_todo.pointType'. $data->pointType)}}</div>
 					</div>
 					<div class="row align-items-center">
-						<div class="fmlabel col-md-2 col-sm-6 col-12">•&nbsp;{{trans('personal_todo.eformNo')}}</div>
+						<div class="fmlabel col-md-2 col-sm-6 col-12">{{trans('personal_todo.eformNo')}}</div>
 						<div class="col-md-4 col-sm-6 col-12 fmData">{{$data->eformNo}}</div>
 
-						<div class="fmlabel col-md-2 col-sm-6 col-12">•&nbsp;{{trans('personal_todo.pointCreatedAt')}}</div>
+						<div class="fmlabel col-md-2 col-sm-6 col-12">{{trans('personal_todo.pointCreatedAt')}}</div>
 						<div class="col-md-4 col-sm-6 col-12 fmData">{{$data->pointTime}}</div>
 					</div>
 				</div>
@@ -295,7 +336,7 @@
 
 						@if($label)
 							@php($roWidth += 2)
-							<div class="fmlabel col-md-2 col-sm-6 col-12">• {{$row->name}}</div>
+							<div class="fmlabel col-md-2 col-sm-6 col-12">{{$row->name}}</div>
 						@endif
 
 						@php($roWidth += $width)
@@ -359,7 +400,7 @@
 		<div id="toSign"></div>
 		<div class="row mb-4">
 			<div class="col-12">
-				<div class="card border-0 shadow">
+				<div class="card border-0 shadow alignCard">
 					<div class="card-header text-white" style="background-color: #336699;">
 						<h4 class="mb-0 fw-bold d-flex align-items-center">
 							<span class="bi bi-pencil-square me-2"></span>
@@ -454,7 +495,7 @@
 
 	<div class="row mb-5">
 		<div class="col-12">
-			<div class="card card-boss shadow-sm">
+			<div class="card card-boss shadow-sm alignCard">
 				<div class="card-header bg-light border-bottom-0">
 					<h4 class="mb-0 fw-bold d-flex align-items-center text-secondary">
 						<span class="bi bi-clock-history me-2"></span>
@@ -514,45 +555,35 @@ for(var ii = 5; ii < 13; ii++) {
 
 /*
  * 依表單內容自動調整版面（不同表單的欄位數量/結構不同）：
- *  1. 欄位內含表格 → 該欄位撐滿整列，標籤移到上方
- *  2. 計畫資料 (一)~(四) 重組為由上而下，(五) 維持原表格
- *  3. 下載檔案欄位：標籤去掉項目符號並加外框
- *  4. 單一跨欄儲存格的列視為標題：置中 + 大地色底
+ *  1. 計畫資料 (一)~(五) 重組為由上而下，且與標籤同列(標籤在左、內容在右)
+ *  2. 其他含表格的欄位撐滿整列
+ *  3. 下載檔案：標籤 + 按鈕包成一組，標籤無項目符號、有外框
+ *  4. 標籤去除項目符號、跨欄標題列置中上色
+ *  5. 簽核/簽核紀錄卡片對齊上方表單卡片的寬度
  */
 (function(){
 	var colRe = /(^|\s)col-(md|sm)-\d+/g;
-	function fullWidth($e) {
-		$e.removeClass(function(i, c){ return (c.match(colRe) || []).join(" "); }).addClass("col-12");
+	function setCol($e, cls) {
+		$e.removeClass(function(i, c){ return (c.match(colRe) || []).join(" "); }).addClass(cls);
 	}
 
-	$("#todo_fm .fmData").has("table").each(function(){
-		fullWidth($(this));
-		fullWidth($(this).prev(".fmlabel"));
-	});
-
-	// ---- 計畫資料表格重組
-	var noRe = /^[\s\u3000]*[（(]([一二三四五])[）)]/;
+	// ---- 計畫資料表格重組：(一)~(五) 都放進同一個框
+	var noRe = /^[\s　]*[（(][一二三四五][）)]/;
 	$("#todo_fm .fmData table").each(function(){
 		var $t = $(this), found = false;
+		if($t.parents("table").length) return;
 		$t.find("tr").each(function(){
 			var c = $(this).children("td, th").first();
 			if(c.length && noRe.test(c.text())) { found = true; return false; }
 		});
-		if(!found || $t.parents("table").length) return;
+		if(!found) return;
 
-		var $box = $('<div class="planBox"></div>'), $sec = null, $five = null;
+		var $box = $('<div class="planBox"></div>'), $sec = null;
 		$t.find("tr").each(function(){
-			var $cells = $(this).children("td, th"), $first = $cells.first(), m = noRe.exec($first.text());
-			if(m && m[1] === "五") {
-				if(!$five) { $five = $('<table class="planFive"><tbody></tbody></table>'); $box.append($five); }
-				$five.find("tbody").append($(this).clone());
-				$sec = null;
-				return;
-			}
-			if($five) { $five.find("tbody").append($(this).clone()); return; }
-			if(m) {
+			var $cells = $(this).children("td, th"), $first = $cells.first();
+			if(noRe.test($first.text())) {
 				$sec = $('<div class="planSec"><div class="planNo"></div><div class="planBody"></div></div>');
-				$sec.find(".planNo").text($.trim($first.text()));
+				$sec.find(".planNo").text($.trim($first.text()).replace(/[（）]/g, function(c){ return c === "（" ? "(" : ")"; }));
 				$box.append($sec);
 				$cells = $cells.not($first);
 			}
@@ -563,19 +594,39 @@ for(var ii = 5; ii < 13; ii++) {
 				$sec.find(".planBody").append($('<div class="planItem"></div>').html($c.html()));
 			});
 		});
+		var $d = $t.closest(".fmData");
 		$t.replaceWith($box);
+		$d.addClass("hasPlan");
+		setCol($d, "col-md-10 col-sm-12 col-12");
+		setCol($d.prev(".fmlabel"), "col-md-2 col-sm-6 col-12");
+		$d.prev(".fmlabel").addClass("planLabel");
 	});
 
-	// ---- 下載檔案標籤
+	// ---- 其餘含表格的欄位：撐滿整列
+	$("#todo_fm .fmData").not(".hasPlan").has("table").each(function(){
+		setCol($(this), "col-12");
+		setCol($(this).prev(".fmlabel"), "col-12");
+	});
+
+	// ---- 標籤去掉開頭的項目符號
+	$(".fmlabel").each(function(){
+		var node = $(this).contents().filter(function(){ return this.nodeType === 3 && $.trim(this.nodeValue) !== ""; }).first();
+		if(node.length) node[0].nodeValue = node[0].nodeValue.replace(/^[\s •·]+/, "");
+	});
+
+	// ---- 下載檔案：標籤 + 按鈕一組
 	$("#todo_fm .fmData").each(function(){
-		var $d = $(this), $a = $d.find("a");
-		var isFile = $a.filter(function(){
+		var $d = $(this);
+		if($d.find("table").length) return;
+		var isFile = $d.find("a").filter(function(){
 			return /download/i.test($(this).attr("href") || "") || $.trim($(this).text()) === "下載";
-		}).length > 0;
-		if(!isFile || $d.find("table").length) return;
+		}).length > 0 || $d.find(".label-default").length > 0;
 		var $l = $d.prev(".fmlabel");
-		if(!$l.length) return;
-		$l.text($.trim($l.text()).replace(/^[•·\s]+/, "")).addClass("fileLabel");
+		if(!isFile || !$l.length) return;
+		$l.addClass("fileLabel");
+		setCol($l, "");
+		setCol($d, "");
+		$l.add($d).wrapAll('<div class="fileGroup col-md-4 col-sm-6 col-12"></div>');
 	});
 
 	// ---- 標題列(單一跨欄儲存格)
@@ -586,6 +637,20 @@ for(var ii = 5; ii < 13; ii++) {
 			$c.addClass("tableTitle");
 		}
 	});
+
+	// ---- 簽核/簽核紀錄卡片寬度對齊上方表單卡片
+	function alignCards() {
+		var ref = $("#todo_fm .card-boss").first()[0];
+		if(!ref) return;
+		var $cards = $(".alignCard").css({marginLeft: "", width: "", maxWidth: ""});
+		var r = ref.getBoundingClientRect();
+		$cards.each(function(){
+			var t = this.getBoundingClientRect(), ml = parseFloat($(this).css("marginLeft")) || 0;
+			$(this).css({marginLeft: (ml + r.left - t.left) + "px", width: r.width + "px", maxWidth: "none"});
+		});
+	}
+	alignCards();
+	$(window).on("load resize", alignCards);
 })();
 
 // 簽核結果變更邏輯
