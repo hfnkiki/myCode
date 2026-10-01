@@ -78,8 +78,18 @@
 	}
 	#todo_fm .fmData {
 		min-width: 0;            /* 讓 flex 子元素可縮小，避免被表格撐寬 */
-		overflow-x: auto;        /* 真的放不下時才在欄位內捲動，不影響整頁 */
 		word-break: break-word;
+	}
+	/* 只有含表格的欄位才在內部橫向捲動；其餘維持 visible，
+	   否則 textarea 的捲軸與右下角拉伸會被外層 overflow 吃掉 */
+	#todo_fm .fmData.hasTable {
+		overflow-x: auto;
+	}
+	#todo_fm .fmData textarea {
+		resize: both;
+		max-width: none;
+		overflow: auto;
+		pointer-events: auto;
 	}
 	#todo_fm .fmData img,
 	#todo_fm .fmData iframe {
@@ -600,6 +610,8 @@ for(var ii = 5; ii < 13; ii++) {
 		$d.prev(".fmlabel").addClass("planLabel");
 	});
 
+	$("#todo_fm .fmData").has("table").addClass("hasTable");
+
 	// ---- 其餘含表格的欄位：撐滿整列
 	$("#todo_fm .fmData").not(".hasPlan").has("table").each(function(){
 		setCol($(this), "col-12");
@@ -616,9 +628,10 @@ for(var ii = 5; ii < 13; ii++) {
 	$("#todo_fm .fmData").each(function(){
 		var $d = $(this);
 		if($d.find("table").length) return;
-		var isFile = $d.find("a").filter(function(){
-			return /download/i.test($(this).attr("href") || "") || $.trim($(this).text()) === "下載";
-		}).length > 0 || $d.find(".label-default").length > 0;
+		// 只有「下載」按鈕形式的欄位才用外框標籤；
+		// 有檔名連結(.manyFiles)或「無檔案」的欄位維持一般 th 樣式
+		var isFile = $d.find(".manyFiles").length === 0
+			&& $d.find("a").filter(function(){ return $.trim($(this).text()) === "下載"; }).length > 0;
 		var $l = $d.prev(".fmlabel");
 		if(!isFile || !$l.length) return;
 		$l.addClass("fileLabel");
