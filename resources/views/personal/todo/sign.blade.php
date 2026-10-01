@@ -86,9 +86,20 @@
 		overflow-x: auto;
 	}
 	#todo_fm .fmData textarea {
-		resize: both;
+		resize: both !important;
 		max-width: none;
-		overflow: auto;
+		overflow: auto !important;
+		pointer-events: auto !important;
+		user-select: text;
+	}
+	/* 若外層有全域 pointer-events:none 之類的設定，在欄位區內一律還原 */
+	#todo_fm .fmData div,
+	#todo_fm .fmData table,
+	#todo_fm .fmData tbody,
+	#todo_fm .fmData tr,
+	#todo_fm .fmData td,
+	#todo_fm .fmData th,
+	#todo_fm .fmData span {
 		pointer-events: auto;
 	}
 	#todo_fm .fmData img,
@@ -701,6 +712,15 @@ for(var ii = 5; ii < 13; ii++) {
 				&& t.length > 0 && t.length <= 20 && $c.find("input, select, textarea, table").length === 0) {
 			$c.addClass("tableTitle");
 		}
+	});
+
+	// ---- disabled 的 textarea 瀏覽器不允許拖曳捲軸/縮放
+	//      → 換成 readonly 的複本(拿掉 name，與 disabled 一樣不會被送出)
+	$("#todo_fm .fmData textarea:disabled").each(function(){
+		var $o = $(this), v = $o.val();
+		var $n = $o.clone().prop("disabled", false).removeAttr("disabled").removeAttr("name")
+			.prop("readonly", true).val(v);
+		$o.replaceWith($n);
 	});
 
 	// ---- 簽核/簽核紀錄卡片寬度對齊上方表單卡片
