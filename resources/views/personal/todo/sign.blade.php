@@ -1,6 +1,6 @@
 @extends('layout.defaultBS5')
 @section('content')
-<!-- sign-view-rev: 2026-10-01-r9 -->
+<!-- sign-view-rev: 2026-10-01-r10 -->
 <style>
 	#todo_fm .card-body .row {
 		margin-top: 10px;
@@ -225,10 +225,8 @@
 	#todo_fm .fmData .container-xxl {
 		max-width: 100% !important;
 		width: 100% !important;
-		/* row 有 -12px 的負邊距，內距必須留給它，否則標籤底色會貼齊/超出外框；
-		   25px = 與左邊邊界的間距 */
-		padding-left: 25px !important;
-		padding-right: 25px !important;
+		padding-left: 0 !important;
+		padding-right: 0 !important;
 	}
 
 	/* 學歷/經歷等一般表格往內縮 10px，不貼邊 */
@@ -271,6 +269,19 @@
 		background-color: #f5f5f5 !important;
 	}
 
+	/* 下載欄位：一行兩組 (標籤 2 欄 + 按鈕 4 欄)，標籤與左邊留 25px */
+	#todo_fm .fmlabel.fileLabel {
+		margin-left: 25px;
+		flex: 0 0 auto;
+		width: calc(50% - 25px);
+		max-width: calc(50% - 25px);
+	}
+	@media (min-width: 768px) {
+		#todo_fm .fmlabel.fileLabel {
+			width: calc(16.66666667% - 25px);
+			max-width: calc(16.66666667% - 25px);
+		}
+	}
 	#todo_fm .planLabel { align-self: flex-start; }
 </style>
 
@@ -700,6 +711,12 @@ for(var ii = 5; ii < 13; ii++) {
 		}
 		if(name) $a.text(name);
 		$a.addClass("fileLink");
+
+		// 一行兩組：標籤(2) + 下載按鈕欄(4)
+		var $d = $a.closest(".fmData");
+		if($d.find("table").length) return;
+		setCol($d, "col-md-4 col-sm-6 col-12");
+		$d.prev(".fmlabel").addClass("fileLabel");
 	});
 
 	// ---- 標題列(單一跨欄儲存格)
