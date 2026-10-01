@@ -1,6 +1,6 @@
 @extends('layout.defaultBS5')
 @section('content')
-<!-- sign-view-rev: 2026-10-01-r12 -->
+<!-- sign-view-rev: 2026-10-01-r13 -->
 <style>
 	#todo_fm .card-body .row {
 		margin-top: 10px;
@@ -176,8 +176,8 @@
 
 	/* ===== 計畫資料 (一)~(四)：由上而下排列，(五)維持原表格 (結構由 JS 重組為 .planBox) ===== */
 	#todo_fm .planBox {
-		width: 100%;
-		margin: 10px 0 15px;
+		width: calc(100% - 20px);   /* 與一般表格相同：左右各內縮 10px */
+		margin: 10px 0 15px 10px;
 		border: 1px solid #dee2e6;
 	}
 	#todo_fm .planBox .planSec {
@@ -598,7 +598,7 @@ for(var ii = 5; ii < 13; ii++) {
 
 /*
  * 依表單內容自動調整版面（不同表單的欄位數量/結構不同）：
- *  1. 計畫資料 (一)~(五) 重組為由上而下，且與標籤同列(標籤在左、內容在右)
+ *  1. 計畫資料 (一)~(五) 重組為由上而下，並與其他全寬表格同寬
  *  2. 其他含表格的欄位撐滿整列
  *  3. 下載連結改顯示實際檔名，標籤與其他欄位一致
  *  4. 標籤去除項目符號、跨欄標題列置中上色
@@ -684,9 +684,9 @@ for(var ii = 5; ii < 13; ii++) {
 		var $d = $t.closest(".fmData");
 		$t.replaceWith($box);
 		$d.addClass("hasPlan");
-		setCol($d, "col-md-10 col-sm-12 col-12");
-		setCol($d.prev(".fmlabel"), "col-md-2 col-sm-6 col-12");
-		$d.prev(".fmlabel").addClass("planLabel");
+		// 與其他全寬表格(如送審資料)同寬：標籤獨立一行在上，內容撐滿整列
+		setCol($d, "col-12");
+		setCol($d.prev(".fmlabel"), "col-12");
 	});
 
 	$("#todo_fm .fmData").has("table").addClass("hasTable");

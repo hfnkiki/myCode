@@ -1,6 +1,6 @@
 @extends('layout.default')
 @section("content")
-<!-- preview-view-rev: 2026-10-01-r2 -->
+<!-- preview-view-rev: 2026-10-01-r3 -->
 <style>
 	/* 本頁為 Bootstrap 3 版型(panel / col-xs-*)：沿用簽核頁(sign)的樣式，gutter 為 15px */
 	#prev_fm .row {
@@ -146,8 +146,8 @@
 
 	/* ===== 計畫資料 (一)~(五)：由上而下排列(結構由 JS 重組為 .planBox) ===== */
 	#prev_fm .planBox {
-		width: 100%;
-		margin: 10px 0 15px;
+		width: calc(100% - 20px);   /* 與一般表格相同：左右各內縮 10px */
+		margin: 10px 0 15px 10px;
 		border: 1px solid #dee2e6;
 	}
 	#prev_fm .planBox .planSec {
@@ -341,9 +341,9 @@ for(ii = 5; ii < 13; ii++)
 		var $d = $t.closest(".fmData");
 		$t.replaceWith($box);
 		$d.addClass("hasPlan");
-		setCol($d, "col-md-10 col-sm-12 col-xs-12");
-		setCol($d.prev(".fmlabel"), "col-md-2 col-sm-6 col-xs-12");
-		$d.prev(".fmlabel").addClass("planLabel");
+		// 與其他全寬表格(如送審資料)同寬：標籤獨立一行在上，內容撐滿整列
+		setCol($d, "col-xs-12");
+		setCol($d.prev(".fmlabel"), "col-xs-12");
 	});
 
 	$("#prev_fm .fmData").has("table").addClass("hasTable");
