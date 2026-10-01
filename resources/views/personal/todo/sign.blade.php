@@ -1,6 +1,6 @@
 @extends('layout.defaultBS5')
 @section('content')
-<!-- sign-view-rev: 2026-10-01-r8 -->
+<!-- sign-view-rev: 2026-10-01-r9 -->
 <style>
 	#todo_fm .card-body .row {
 		margin-top: 10px;
@@ -225,8 +225,10 @@
 	#todo_fm .fmData .container-xxl {
 		max-width: 100% !important;
 		width: 100% !important;
-		padding-left: 0 !important;
-		padding-right: 0 !important;
+		/* row 有 -12px 的負邊距，內距必須留給它，否則標籤底色會貼齊/超出外框；
+		   25px = 與左邊邊界的間距 */
+		padding-left: 25px !important;
+		padding-right: 25px !important;
 	}
 
 	/* 學歷/經歷等一般表格往內縮 10px，不貼邊 */
