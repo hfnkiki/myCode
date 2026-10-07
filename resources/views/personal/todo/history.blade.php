@@ -1,6 +1,6 @@
 @extends('layout.blankBS5')
 @section('content')
-<!-- history-view-rev: 2026-10-07-r4 -->
+<!-- history-view-rev: 2026-10-07-r5 -->
 <style>
 	/* 整個畫面置中：外層與內層 container 都水平置中，每一列內容也置中 */
 	#hist_page,
@@ -9,9 +9,23 @@
 		margin-left: auto !important;
 		margin-right: auto !important;
 	}
+	/* 讓每一列真的是 flex 並置中：若載入的 css 沒有把 .row 當 flex(例如沿用 float 格線)，
+	   justify-content 不會生效，內容就會靠左 */
 	#hist_page > .row,
 	#hist_fm > .row {
+		display: flex !important;
+		flex-wrap: wrap;
 		justify-content: center;
+	}
+	#hist_page > .row::before,
+	#hist_page > .row::after,
+	#hist_fm > .row::before,
+	#hist_fm > .row::after {
+		display: none !important;
+	}
+	#hist_page > .row > [class*="col-"],
+	#hist_fm > .row > [class*="col-"] {
+		float: none;
 	}
 	#hist_fm .card-body .labelDiv {
 		margin-top: 15px;
