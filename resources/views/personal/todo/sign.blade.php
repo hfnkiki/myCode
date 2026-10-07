@@ -1,6 +1,6 @@
 @extends('layout.defaultBS5')
 @section('content')
-<!-- sign-view-rev: 2026-10-07-r18 -->
+<!-- sign-view-rev: 2026-10-07-r19 -->
 <style>
 	#todo_fm .card-body .row {
 		margin-top: 10px;
@@ -294,8 +294,8 @@
 	/* (五) 金額表：名稱靠左、金額靠右，各身份一致 */
 	#todo_fm .planBox table.planFive {
 		margin: 0;
-		width: 100%;
-		table-layout: fixed;
+		width: auto;              /* 不撐滿整列，欄與欄之間才不會離很遠 */
+		table-layout: auto;
 	}
 	#todo_fm .fmData table.planFive td {
 		border: none !important;
@@ -305,7 +305,8 @@
 		word-break: break-word;
 	}
 	#todo_fm .fmData table.planFive td.amt { text-align: right; }
-	#todo_fm .fmData table.planFive td:first-child { width: 28%; }
+	#todo_fm .fmData table.planFive td:first-child { min-width: 8em; }   /* 項目名稱欄 */
+	#todo_fm .fmData table.planFive td.amt { min-width: 9em; }          /* 金額欄：欄寬即「核定金額」與「流用後金額」的間距 */
 	#todo_fm .planLabel { align-self: flex-start; }
 </style>
 
