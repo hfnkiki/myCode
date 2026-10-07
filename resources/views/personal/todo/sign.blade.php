@@ -1,6 +1,6 @@
 @extends('layout.defaultBS5')
 @section('content')
-<!-- sign-view-rev: 2026-10-07-r19 -->
+<!-- sign-view-rev: 2026-10-07-r20 -->
 <style>
 	#todo_fm .card-body .row {
 		margin-top: 10px;
@@ -70,7 +70,7 @@
 	}
 	#todo_div .card-body .fmData {
 		padding: 8px 12px;
-		word-break: break-word;
+		overflow-wrap: break-word;
 	}
 
 	/* ===== 各卡片等寬、內容不撐破版面 ===== */
@@ -82,7 +82,7 @@
 	}
 	#todo_fm .fmData {
 		min-width: 0;            /* 讓 flex 子元素可縮小，避免被表格撐寬 */
-		word-break: break-word;
+		overflow-wrap: break-word;
 	}
 	/* 只有含表格的欄位才在內部橫向捲動；其餘維持 visible，
 	   否則 textarea 的捲軸與右下角拉伸會被外層 overflow 吃掉 */
@@ -161,7 +161,7 @@
 	#todo_fm .fmData table td {
 		border: 1px solid #dee2e6 !important;
 		padding: 8px !important;
-		word-break: break-word;
+		overflow-wrap: break-word;
 	}
 	/* th 與「標題列」(勞健退資料等跨欄儲存格)：置中 + 大地色底 */
 	#todo_fm .fmData table th,
@@ -203,7 +203,7 @@
 	#todo_fm .planBox .planItem {
 		padding: 3px 0;
 		text-align: left;
-		word-break: break-word;
+		overflow-wrap: break-word;
 	}
 	#todo_fm .planBox table {
 		margin: 0;
@@ -302,7 +302,7 @@
 		padding: 1px 12px !important;
 		line-height: 1.4;
 		text-align: left;
-		word-break: break-word;
+		overflow-wrap: break-word;
 	}
 	#todo_fm .fmData table.planFive td.amt { text-align: right; }
 	#todo_fm .fmData table.planFive td:first-child { min-width: 8em; }   /* 項目名稱欄 */
