@@ -1,7 +1,18 @@
 @extends('layout.blankBS5')
 @section('content')
-<!-- history-view-rev: 2026-10-07-r2 -->
+<!-- history-view-rev: 2026-10-07-r3 -->
 <style>
+	/* 整個畫面置中：外層與內層 container 都水平置中，每一列內容也置中 */
+	#hist_page,
+	#hist_fm {
+		float: none;
+		margin-left: auto !important;
+		margin-right: auto !important;
+	}
+	#hist_page > .row,
+	#hist_fm > .row {
+		justify-content: center;
+	}
 	#hist_fm .card-body .labelDiv {
 		margin-top: 15px;
 	}
@@ -189,7 +200,7 @@
 	#hist_fm .planLabel { align-self: flex-start; }
 	/* 欄位區塊標題(基本資料、申請資訊…)與標籤一致：大地色底、深灰字、置中(見上方 .labelDiv) */
 </style>
-<div class="container px-3 px-md-4">
+<div class="container px-3 px-md-4" id="hist_page">
 	<div class="row justify-content-center">
 		<div class="col-12 col-md-8">
 			<h1 class="h3 my-4 fw-bold" style="color: #6c757d;">{{trans('menu.historySearching')}}</h1>
