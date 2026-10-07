@@ -1,6 +1,6 @@
 @extends('layout.defaultBS5')
 @section('content')
-<!-- sign-view-rev: 2026-10-07-r17 -->
+<!-- sign-view-rev: 2026-10-07-r18 -->
 <style>
 	#todo_fm .card-body .row {
 		margin-top: 10px;
@@ -299,7 +299,8 @@
 	}
 	#todo_fm .fmData table.planFive td {
 		border: none !important;
-		padding: 4px 12px !important;
+		padding: 1px 12px !important;
+		line-height: 1.4;
 		text-align: left;
 		word-break: break-word;
 	}
