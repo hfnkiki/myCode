@@ -1,6 +1,6 @@
 @extends('layout.defaultBS5')
 @section('content')
-<!-- sign-view-rev: 2026-10-07-r24 -->
+<!-- sign-view-rev: 2026-10-07-r25 -->
 <style>
 	#todo_fm .card-body .row {
 		margin-top: 10px;
@@ -784,21 +784,6 @@ for(var ii = 5; ii < 13; ii++) {
 		if($th.children('[class*="col-xs-"]').length && !$th.children(".row").length) {
 			$th.addClass("colHead").wrapInner('<div class="row hdrRow"></div>');
 		}
-	});
-
-	// ---- 「參考比例」欄：後端有時輸出小數(0.1)、有時輸出百分比(10%)；小數一律改以百分比顯示。
-	//      只改顯示文字，且僅限表頭為「參考比例」的那一欄、內容為 0~1 的純數字時才轉換
-	$("#todo_fm .fmData table").each(function(){
-		var $tb = $(this), idx = -1;
-		$tb.find("th .hdrRow").first().children().each(function(i){
-			if($.trim($(this).text()) === "參考比例") { idx = i; return false; }
-		});
-		if(idx < 0) return;
-		$tb.find("td .row").each(function(){
-			var $c = $(this).children().eq(idx), t = $.trim($c.text());
-			if($c.children().not("font").length || !/^(0(\.\d+)?|1(\.0+)?)$/.test(t)) return;
-			$c.text(parseFloat((parseFloat(t) * 100).toFixed(4)) + "%");
-		});
 	});
 
 	// ---- 標題列(單一跨欄儲存格)
