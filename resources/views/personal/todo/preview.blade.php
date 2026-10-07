@@ -1,8 +1,26 @@
 @extends('layout.default')
 @section("content")
-<!-- preview-view-rev: 2026-10-07-r8 -->
+<!-- preview-view-rev: 2026-10-07-r9 -->
 <style>
 	/* 本頁為 Bootstrap 3 版型(panel / col-xs-*)：沿用簽核頁(sign)的樣式，gutter 為 15px */
+	/* 文字大小比照簽核頁(Bootstrap 5：基準 16px)。
+	   本頁是 Bootstrap 3(基準 14px、html 為 10px，不能用 rem)，所以一律用 px 明確指定 */
+	#prev_fm {
+		font-size: 16px;
+		line-height: 1.5;
+	}
+	#prev_fm .form-control,
+	#prev_fm select,
+	#prev_fm textarea,
+	#prev_fm table,
+	#prev_fm th,
+	#prev_fm td,
+	#prev_fm .fmlabel,
+	#prev_fm .panel-divide {
+		font-size: 16px;
+		line-height: 1.5;
+	}
+	#prev_fm .fmData pre { font-size: 14px; }
 	#prev_fm .row {
 		display: flex;
 		flex-wrap: wrap;
@@ -92,7 +110,7 @@
 		border-radius: 4px !important;
 		box-shadow: none;
 		padding: 5px 12px !important;
-		font-size: 1rem !important;
+		font-size: 16px !important;
 		font-weight: normal !important;
 		display: inline-block;
 		text-decoration: none;
@@ -248,7 +266,7 @@
 	@endif
 	@php($roWidth += $width)
 	@if($row->type === 'label')
-		<div class="col-md-{{$width}} panel-divide" style="font-size:15px;font-weight: bold;">{{$row->name}}</div>
+		<div class="col-md-{{$width}} panel-divide" style="font-size:16px;font-weight: bold;">{{$row->name}}</div>
 		@continue
 	@endif
 	<div class="col-md-{{$width}} fmData">
@@ -260,7 +278,7 @@
 <?php echo $roWidth != 0? '</div>': '';?>
 
 	<div class="row">
-		<div class="col-md-12 panel-divide" style="font-size:15px;font-weight: bold;">隱藏欄位</div>
+		<div class="col-md-12 panel-divide" style="font-size:16px;font-weight: bold;">隱藏欄位</div>
 	</div>
 	@foreach($hidden as $item => $row)
 	<div class="row">
