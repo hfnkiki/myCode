@@ -1,6 +1,6 @@
 @extends('layout.blankBS5')
 @section('content')
-<!-- history-view-rev: 2026-10-07-r1 -->
+<!-- history-view-rev: 2026-10-07-r2 -->
 <style>
 	#hist_fm .card-body .labelDiv {
 		margin-top: 15px;
@@ -14,7 +14,7 @@
 	/* 標籤/標題的底色用 ::before 畫在 col 內距之內，
 	   這樣所有 th 的左右邊界都與欄位(input)對齊，也不會超出外框 */
 	
-	#hist_fm .fmlabel,
+	
 	#hist_fm .labelDiv,
 	#hist_fm .text-primary.border-bottom {
 		position: relative;
@@ -29,7 +29,7 @@
 		box-sizing: border-box;
 	}
 	
-	#hist_fm .fmlabel::before,
+	
 	#hist_fm .labelDiv::before,
 	#hist_fm .text-primary.border-bottom::before {
 		content: "";
@@ -66,12 +66,12 @@
 		user-select: text;
 	}
 	/* 若外層有全域 pointer-events:none 之類的設定，在欄位區內一律還原 */
+	
 	#hist_fm .fmData div,
 	#hist_fm .fmData table,
 	#hist_fm .fmData tbody,
 	#hist_fm .fmData tr,
 	#hist_fm .fmData td,
-	#hist_fm .fmData th,
 	#hist_fm .fmData span {
 		pointer-events: auto;
 	}
@@ -95,30 +95,6 @@
 		font-weight: 700 !important;
 		border-radius: 50rem !important;
 		display: inline-block;
-	}
-
-	/* ===== 表單內的表格 ===== */
-	#hist_fm .fmData table {
-		width: 100%;
-		max-width: 100%;
-		border-collapse: collapse;
-		margin-top: 10px;
-		margin-bottom: 15px;
-	}
-	#hist_fm .fmData table td {
-		border: 1px solid #dee2e6 !important;
-		padding: 8px !important;
-		overflow-wrap: break-word;
-	}
-	/* th 與「標題列」(勞健退資料等跨欄儲存格)：置中 + 大地色底 */
-	#hist_fm .fmData table th,
-	#hist_fm .fmData table td.tableTitle {
-		background-color: #fff5ea !important;
-		color: #333 !important;
-		text-align: center !important;
-		padding: 10px !important;
-		font-weight: bold !important;
-		border: 1px solid #eeddc8 !important;
 	}
 
 	/* ===== 計畫資料 (一)~(四)：由上而下排列，(五)維持原表格 (結構由 JS 重組為 .planBox) ===== */
@@ -178,54 +154,9 @@
 		padding-left: 0 !important;
 		padding-right: 0 !important;
 	}
-
-	/* 學歷/經歷等一般表格往內縮 10px，不貼邊 */
-	#hist_fm .fmData table {
-		margin-left: 10px;
-		width: calc(100% - 20px);
-	}
 	#hist_fm .planBox table {
 		margin: 0;
 		width: 100%;
-	}
-	
-	#hist_fm th {
-		background-color: #fff5ea !important;
-		color: #333 !important;
-		text-align: center;
-		font-weight: bold;
-	}
-
-	/* 「下載」連結：白底方框 + 較大文字，文字為實際檔名 */
-	#hist_fm .fmData a.fileLink {
-		background-color: #fff !important;
-		color: #333 !important;
-		border: 1px solid #aaa !important;
-		border-radius: 4px !important;
-		box-shadow: none;
-		padding: 5px 12px !important;
-		font-size: 1rem !important;
-		font-weight: normal !important;
-		display: inline-block;
-		text-decoration: none;
-	}
-	#hist_fm .fmData a.fileLink:hover {
-		background-color: #f5f5f5 !important;
-	}
-
-	/* 下載欄位在「貼齊卡片邊緣」的區塊(JS 偵測後加 .fileBleed)：
-	   標籤加寬為 4 欄、與左邊留 25px，按鈕欄 2 欄 → 一行兩組 */
-	#hist_fm .fmlabel.fileBleed {
-		margin-left: 25px;
-		flex: 0 0 auto;
-		width: calc(50% - 25px);
-		max-width: calc(50% - 25px);
-	}
-	@media (min-width: 768px) {
-		#hist_fm .fmlabel.fileBleed {
-			width: calc(33.33333333% - 25px);
-			max-width: calc(33.33333333% - 25px);
-		}
 	}
 	/* 貼邊的嵌套 row：補內距，標籤與區段標題不再貼著左右邊 */
 	#hist_fm .nestedRow {
@@ -255,7 +186,6 @@
 	#hist_fm .fmData .col-xs-12 { width: 100.00000000%; }
 	/* 表格內的 row：不要上方間距(內容列緊密排列)；含 col-xs 表頭的 th 內距與 td 相同 */
 	#hist_fm .fmData table .row { margin-top: 0; }
-	#hist_fm .fmData table th.colHead { padding: 8px !important; }
 	#hist_fm .planLabel { align-self: flex-start; }
 	/* 欄位區塊標題(基本資料、申請資訊…)與標籤一致：大地色底、深灰字、置中(見上方 .labelDiv) */
 </style>
@@ -286,31 +216,31 @@
 					</div>
 					<div class="card-body">
 						<div class="row align-items-center mb-2">
-							<div class="fmlabel col-md-2 col-sm-6 col-12">{{trans('personal_todo.flowName')}}</div>
+							<div class="fmlabel col-md-2 col-sm-6 col-12">•&nbsp;{{trans('personal_todo.flowName')}}</div>
 							<div class="col-md-4 col-sm-6 col-12 fmData">{{$flowName}}</div>
 							
-							<div class="fmlabel col-md-2 col-sm-6 col-12">{{trans('personal_todo.pointName')}}</div>
+							<div class="fmlabel col-md-2 col-sm-6 col-12">•&nbsp;{{trans('personal_todo.pointName')}}</div>
 							<div class="col-md-4 col-sm-6 col-12 fmData">{{$pointName}}</div>
 						</div>
 						
 						<div class="row align-items-center mb-2">
-							<div class="fmlabel col-md-2 col-sm-6 col-12">{{trans('personal_todo.formSubj')}}</div>
+							<div class="fmlabel col-md-2 col-sm-6 col-12">•&nbsp;{{trans('personal_todo.formSubj')}}</div>
 							<div class="col-md-4 col-sm-6 col-12 fmData">{{$formSubj}}</div>
 							
-							<div class="fmlabel col-md-2 col-sm-6 col-12">{{trans('personal_todo.signer')}}</div>
+							<div class="fmlabel col-md-2 col-sm-6 col-12">•&nbsp;{{trans('personal_todo.signer')}}</div>
 							<div class="col-md-4 col-sm-6 col-12 fmData">{{$signer}}</div>
 						</div>
 						
 						<div class="row align-items-center mb-2">
-							<div class="fmlabel col-md-2 col-sm-6 col-12">{{trans('personal_todo.signAt')}}</div>
+							<div class="fmlabel col-md-2 col-sm-6 col-12">•&nbsp;{{trans('personal_todo.signAt')}}</div>
 							<div class="col-md-4 col-sm-6 col-12 fmData">{{$signAt}}</div>
 							
-							<div class="fmlabel col-md-2 col-sm-6 col-12">{{trans('personal_todo.result')}}</div>
+							<div class="fmlabel col-md-2 col-sm-6 col-12">•&nbsp;{{trans('personal_todo.result')}}</div>
 							<div class="col-md-4 col-sm-6 col-12 fmData">{{$result}}</div>
 						</div>
 						
 						<div class="row align-items-start mt-3">
-							<div class="fmlabel col-md-2 col-sm-6 col-12">{{trans('personal_todo.signMsg')}}</div>
+							<div class="fmlabel col-md-2 col-sm-6 col-12">•&nbsp;{{trans('personal_todo.signMsg')}}</div>
 							<div class="col-md-10 col-sm-6 col-12 fmData"><pre class="mb-0" style="white-space: pre-wrap; font-family: inherit; background: #f8f9fa; border: 1px solid #e9ecef;">{{$signMsg}}</pre></div>
 						</div>
 					</div>
@@ -342,7 +272,7 @@
 						
 						@if($label)
 							@php($roWidth += 2)
-							<div class="fmlabel col-md-2 col-sm-6 col-12">{{$row->name}}</div>
+							<div class="fmlabel col-md-2 col-sm-6 col-12">• {{$row->name}}</div>
 						@endif
 						
 						@php($roWidth += $width)
@@ -481,14 +411,6 @@ for(var ii = 5; ii < 13; ii++) {
 		}
 	});
 
-	// ---- 標題列(單一跨欄儲存格)
-	$("#hist_fm .fmData table tr").each(function(){
-		var $tds = $(this).children("td, th"), $c = $tds.first(), t = $.trim($c.text());
-		if($tds.length === 1 && $c.is("td") && parseInt($c.attr("colspan") || "1", 10) > 1
-				&& t.length > 0 && t.length <= 20 && $c.find("input, select, textarea, table").length === 0) {
-			$c.addClass("tableTitle");
-		}
-	});
 
 })();
 </script>
