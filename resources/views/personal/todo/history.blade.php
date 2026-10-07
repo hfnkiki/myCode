@@ -1,6 +1,6 @@
 @extends('layout.blankBS5')
 @section('content')
-<!-- history-view-rev: 2026-10-07-r5 -->
+<!-- history-view-rev: 2026-10-07-r6 -->
 <style>
 	/* 整個畫面置中：外層與內層 container 都水平置中，每一列內容也置中 */
 	#hist_page,
@@ -438,6 +438,14 @@ for(var ii = 5; ii < 13; ii++) {
 
 
 })();
+
+// ---- 保險：外層兩層的每一列直接用行內樣式設成 flex 並置中(不依賴 css 是否載入/被蓋掉)
+$("#hist_page, #hist_fm").children(".row").each(function(){
+	this.style.setProperty("display", "flex", "important");
+	this.style.flexWrap = "wrap";
+	this.style.justifyContent = "center";
+	$(this).children('[class*="col-"]').css("float", "none");
+});
 
 // ---- 整個畫面置中：layout 把內容放在偏左的容器時，CSS 的 margin:auto 無法讓內容回到視窗中央，
 //      這裡量出頁面容器中心與視窗中心的差，用 position:relative 平移補正(視窗縮放時重算)
