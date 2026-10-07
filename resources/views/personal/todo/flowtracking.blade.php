@@ -1,6 +1,6 @@
 @extends('layout.blankBS5')
 @section('content')
-<!-- flowtracking-view-rev: 2026-10-07-r1 -->
+<!-- flowtracking-view-rev: 2026-10-07-r2 -->
 <style>
 	.flow-info-section{
 		padding-bottom: 1.5rem;
@@ -48,6 +48,46 @@
 		resize: both;
 		pointer-events: auto;
 	}
+	/* ===== 計畫資料 (一)~(五)：由上而下排列(結構由下方 script 重組為 .planBox) ===== */
+	.form-grid .planBox {
+		width: 100%;
+		margin: 4px 0;
+		border: 1px solid #dee2e6;
+	}
+	.form-grid .planBox .planSec {
+		display: flex;
+		border-bottom: 1px solid #dee2e6;
+	}
+	.form-grid .planBox .planSec:last-child { border-bottom: none; }
+	.form-grid .planBox .planNo {
+		flex: 0 0 56px;
+		background-color: #fff5ea;
+		border-right: 1px solid #eeddc8;
+		font-weight: bold;
+		text-align: center;
+		padding: 8px 4px;
+	}
+	.form-grid .planBox .planBody {
+		flex: 1 1 auto;
+		min-width: 0;
+		padding: 6px 12px;
+	}
+	.form-grid .planBox .planItem {
+		padding: 3px 0;
+		text-align: left;
+		overflow-wrap: break-word;
+	}
+	/* 被拆開的項目：取消原本的並排設定(float/固定寬/inline-block/table-cell) */
+	.form-grid .planBox .planSplit,
+	.form-grid .planBox .planSplit > * {
+		float: none !important;
+		display: block !important;
+		width: auto !important;
+		max-width: 100% !important;
+		margin: 0 !important;
+		text-align: left !important;
+	}
+	.form-grid .planBox table { width: 100%; margin: 0; }
 </style>
 <div class="container px-3 px-md-4">	
 	<div class="row justify-content-center mt-4 mb-3">
@@ -158,4 +198,82 @@
 	</div>
 	@endif
 </div>
+<script>
+// 計畫資料 (一)~(五)：重組為由上而下排列(只調整版面，不改文字內容)
+(function(){
+	var noRe = /^[\s\u3000]*[（(][一二三四五][）)]/;
+	var wrapSel = "div, ul, ol, p, tbody, tr, td, th, table, section";
+	var grid = document.querySelector("table.form-grid");
+	if(!grid) return;
+
+	function esc(t) { var d = document.createElement("div"); d.textContent = t; return d.innerHTML; }
+	function hasContent(n) {
+		if(n.nodeType === 3) return n.nodeValue.trim() !== "";
+		if(n.nodeType !== 1) return false;
+		return n.textContent.trim() !== "" || n.matches("input, img, select, textarea, a");
+	}
+	// 把一個儲存格裡「並排」的項目拆成陣列(每項一段 html)
+	function splitItems(el) {
+		var kids = Array.prototype.filter.call(el.childNodes, hasContent);
+		if(!kids.length) return [];
+		if(kids.length === 1 && kids[0].nodeType === 1 && kids[0].matches(wrapSel)) {
+			var o = kids[0];
+			if(o.tagName === "TABLE") {
+				var out = [];
+				Array.prototype.forEach.call(o.querySelectorAll("td, th"), function(c){
+					if(c.querySelector("table")) return;
+					out = out.concat(splitItems(c));
+				});
+				return out;
+			}
+			return splitItems(o);
+		}
+		if(kids.length === 1) return [el.innerHTML];
+		var items = [], buf = "";
+		kids.forEach(function(n){
+			buf += n.nodeType === 1 ? n.outerHTML : esc(n.nodeValue);
+			// 以「：」結尾的是標題，與下一個節點合併成同一項
+			if(!/[：:]\s*$/.test(n.textContent || "")) { items.push(buf); buf = ""; }
+		});
+		if(buf) items.push(buf);
+		return items;
+	}
+	function addItem(body, html, split) {
+		var d = document.createElement("div");
+		d.className = "planItem" + (split ? " planSplit" : "");
+		d.innerHTML = html;
+		body.appendChild(d);
+	}
+
+	Array.prototype.forEach.call(grid.querySelectorAll(".cell-wrap table"), function(t){
+		if(t.parentElement.closest("table") !== grid) return;          // 只處理最外層的巢狀表格
+		var found = Array.prototype.some.call(t.rows, function(r){
+			return r.cells.length && noRe.test(r.cells[0].textContent);
+		});
+		if(!found) return;
+
+		var box = document.createElement("div"), body = null, isFive = false;
+		box.className = "planBox";
+		Array.prototype.forEach.call(t.rows, function(r){
+			var cells = Array.prototype.slice.call(r.cells), first = cells[0];
+			if(first && noRe.test(first.textContent)) {
+				isFive = /五/.test(first.textContent);
+				var sec = document.createElement("div"), no = document.createElement("div");
+				sec.className = "planSec"; no.className = "planNo";
+				no.textContent = first.textContent.trim().replace(/[（）]/g, function(c){ return c === "（" ? "(" : ")"; });
+				body = document.createElement("div"); body.className = "planBody";
+				sec.appendChild(no); sec.appendChild(body); box.appendChild(sec);
+				cells = cells.slice(1);
+			}
+			if(!body) return;
+			cells.forEach(function(c){
+				if(c.textContent.trim() === "" && !c.querySelector("input, img, a, select, textarea")) return;
+				if(isFive) addItem(body, c.innerHTML, false);                 // (五) 保留原本 html
+				else splitItems(c).forEach(function(h){ addItem(body, h, true); });
+			});
+		});
+		t.parentNode.replaceChild(box, t);
+	});
+})();
+</script>
 @endsection
