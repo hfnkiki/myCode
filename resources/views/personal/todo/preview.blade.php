@@ -1,6 +1,6 @@
 @extends('layout.default')
 @section("content")
-<!-- preview-view-rev: 2026-10-01-r4 -->
+<!-- preview-view-rev: 2026-10-07-r6 -->
 <style>
 	/* 本頁為 Bootstrap 3 版型(panel / col-xs-*)：沿用簽核頁(sign)的樣式，gutter 為 15px */
 	#prev_fm .row {
@@ -50,7 +50,7 @@
 	/* ===== 欄位不撐破版面；含表格的欄位才在內部橫向捲動 ===== */
 	#prev_fm .fmData {
 		min-width: 0;
-		word-break: break-word;
+		overflow-wrap: break-word;
 	}
 	#prev_fm .fmData.hasTable { overflow-x: auto; }
 	#prev_fm .fmData img,
@@ -131,7 +131,7 @@
 	#prev_fm .fmData table td {
 		border: 1px solid #dee2e6 !important;
 		padding: 8px !important;
-		word-break: break-word;
+		overflow-wrap: break-word;
 		text-align: justify;
 	}
 	#prev_fm th,
@@ -171,7 +171,7 @@
 	#prev_fm .planBox .planItem {
 		padding: 3px 0;
 		text-align: left;
-		word-break: break-word;
+		overflow-wrap: break-word;
 	}
 	#prev_fm .planBox table { margin: 0; width: 100%; }
 	#prev_fm .planBox .planSplit,
@@ -183,6 +183,27 @@
 		margin: 0 !important;
 		text-align: left !important;
 	}
+	/* 與頁面上方「檢視表單內容」標題線同寬：容器不限寬，實際寬度由 JS 對齊 hr */
+	#prev_fm.container {
+		width: 100%;
+		max-width: none;
+	}
+	#prev_fm .panel-boss,
+	#prev_fm .panel {
+		width: auto;
+		max-width: none;
+		float: none;
+		margin-left: 0;
+		margin-right: 0;
+	}
+	/* 貼邊的嵌套 row：補內距，標籤與區段標題不再貼著左右邊 */
+	#prev_fm .nestedRow {
+		padding-left: 16px;
+		padding-right: 16px;
+	}
+	/* 表格內的 row：不要上方間距；含 col-xs 表頭的 th 內距與 td 相同 */
+	#prev_fm .fmData table .row { margin-top: 0; }
+	#prev_fm .fmData table th.colHead { padding: 8px !important; }
 	#prev_fm .planLabel { align-self: flex-start; }
 
 	/* 欄位 html 內自帶的 .container 限寬 → 撐滿 */
@@ -400,6 +421,52 @@ for(ii = 5; ii < 13; ii++)
 			.prop("readonly", true).val(v);
 		$o.replaceWith($n);
 	});
+	// ---- 貼齊左右邊緣的 row：左右補 16px 內距(判定方式同簽核頁)；表格內的 row 不處理
+	$("#prev_fm .row").not("table .row").each(function(){
+		var p = this.parentElement, $panel = $(this).closest(".panel");
+		if(!p) return;
+		var pl = parseFloat($(p).css("paddingLeft")) || 0, ml = parseFloat($(this).css("marginLeft")) || 0;
+		var bleed = ml < 0 && pl < -ml;
+		if(!bleed && $panel.length && $panel[0] !== this) {
+			var cl = $panel[0].getBoundingClientRect().left + (parseFloat($panel.css("borderLeftWidth")) || 0);
+			bleed = (this.getBoundingClientRect().left - ml - cl) < 8;
+		}
+		if(bleed && !$(this).is(".fileBleed")) $(this).addClass("nestedRow");
+	});
+
+	// ---- 表頭 th 內直接放 col-xs-* 欄位(如分配項目/分配金額/參考比例)：包進 row，標題才會與內容對齊
+	$("#prev_fm .fmData table th").each(function(){
+		var $th = $(this);
+		if($th.children('[class*="col-xs-"]').length && !$th.children(".row").length) {
+			$th.addClass("colHead").wrapInner('<div class="row hdrRow"></div>');
+		}
+	});
+
+	// ---- 「參考比例」欄：小數改以百分比顯示(只改顯示文字，限表頭為「參考比例」的那一欄、內容為 0~1 純數字)
+	$("#prev_fm .fmData table").each(function(){
+		var $tb = $(this), idx = -1;
+		$tb.find("th .hdrRow").first().children().each(function(i){
+			if($.trim($(this).text()) === "參考比例") { idx = i; return false; }
+		});
+		if(idx < 0) return;
+		$tb.find("td .row").each(function(){
+			var $c = $(this).children().eq(idx), t = $.trim($c.text());
+			if($c.children().not("font").length || !/^(0(\.\d+)?|1(\.0+)?)$/.test(t)) return;
+			$c.text(parseFloat((parseFloat(t) * 100).toFixed(4)) + "%");
+		});
+	});
+
+	// ---- 整個表單區塊與頁面上方「檢視表單內容」標題線(hr)同寬同位置
+	function alignPanel() {
+		var $c = $("#prev_fm"), $hr = $("hr").not($c.find("hr")).first();
+		if(!$c.length || !$hr.length) return;
+		$c.css({width: "", maxWidth: "", marginLeft: "", marginRight: ""});
+		var r = $hr[0].getBoundingClientRect(), t = $c[0].getBoundingClientRect();
+		var ml = parseFloat($c.css("marginLeft")) || 0;
+		$c.css({maxWidth: "none", width: r.width + "px", marginLeft: (ml + r.left - t.left) + "px", marginRight: 0});
+	}
+	alignPanel();
+	$(window).on("load resize", alignPanel);
 })();
 </script>
 @endif
