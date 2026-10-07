@@ -1,6 +1,6 @@
 @extends('layout.defaultBS5')
 @section('content')
-<!-- sign-view-rev: 2026-10-07-r22 -->
+<!-- sign-view-rev: 2026-10-07-r23 -->
 <style>
 	#todo_fm .card-body .row {
 		margin-top: 10px;
@@ -291,22 +291,6 @@
 		padding-left: 16px;
 		padding-right: 16px;
 	}
-	/* (五) 金額表：名稱靠左、金額靠右，各身份一致 */
-	#todo_fm .planBox table.planFive {
-		margin: 0;
-		width: auto;              /* 不撐滿整列，欄與欄之間才不會離很遠 */
-		table-layout: auto;
-	}
-	#todo_fm .fmData table.planFive td {
-		border: none !important;
-		padding: 1px 12px !important;
-		line-height: 1.4;
-		text-align: left;
-		overflow-wrap: break-word;
-	}
-	#todo_fm .fmData table.planFive td.amt { text-align: right; }
-	#todo_fm .fmData table.planFive td:first-child { min-width: 8em; }   /* 項目名稱欄 */
-	#todo_fm .fmData table.planFive td.amt { min-width: 9em; }          /* 金額欄：欄寬即「核定金額」與「流用後金額」的間距 */
 	/* 後端產生的欄位 html 使用 Bootstrap 3 的 col-xs-* 格線，Bootstrap 5 沒有這組 class，
 	   欄位會變成各佔一整行而疊在一起 → 在欄位區內補上等效的寬度 (如：分配項目/金額/參考比例 表) */
 	#todo_fm .fmData [class*="col-xs-"] {
@@ -328,6 +312,9 @@
 	#todo_fm .fmData .col-xs-10 { width: 83.33333333%; }
 	#todo_fm .fmData .col-xs-11 { width: 91.66666667%; }
 	#todo_fm .fmData .col-xs-12 { width: 100.00000000%; }
+	/* 表格內的 row：不要上方間距(內容列緊密排列)；含 col-xs 表頭的 th 內距與 td 相同 */
+	#todo_fm .fmData table .row { margin-top: 0; }
+	#todo_fm .fmData table th.colHead { padding: 8px !important; }
 	#todo_fm .planLabel { align-self: flex-start; }
 </style>
 
@@ -686,42 +673,6 @@ for(var ii = 5; ii < 13; ii++) {
 		return items;
 	}
 
-	// (五) 金額區：不同身份/表單產生的 html 結構不同(巢狀表格、逐格換行、「名稱：金額」…)，
-	// 這裡一律只取出文字，依序重組成固定的「名稱 | 核定金額 | 流用後金額」表格
-	function textTokens($el) {
-		var out = [];
-		$el.find("*").addBack().contents().each(function(){
-			if(this.nodeType !== 3) return;
-			$.each(this.nodeValue.split(/\n/), function(i, t){
-				t = $.trim(t.replace(/ /g, " "));
-				if(t) out.push(t);
-			});
-		});
-		return out;
-	}
-	function buildFiveTable(tokens) {
-		var amtRe = /^[\-\d,.]+\s*元?$/, kvRe = /^(.+?)[：:]\s*([\-\d,.]+\s*元?)$/;
-		var headers = [], rows = [], cur = null, m;
-		$.each(tokens, function(i, t){
-			if(t === "核定金額" || t === "流用後金額") { headers.push(t); return; }
-			if((m = kvRe.exec(t))) { cur = [m[1], m[2]]; rows.push(cur); return; }
-			if(amtRe.test(t)) { if(cur) cur.push(t); return; }
-			cur = [t]; rows.push(cur);
-		});
-		if(rows.length === 0) return null;
-		var cols = headers.length + 1;
-		$.each(rows, function(i, r){ cols = Math.max(cols, r.length); });
-		var $t = $('<table class="planFive"><tbody></tbody></table>'), $b = $t.find("tbody");
-		function addRow(cells) {
-			var $r = $("<tr></tr>");
-			for(var c = 0; c < cols; c++) $r.append($('<td></td>').addClass(c > 0 ? "amt" : "").text(cells[c] || ""));
-			$b.append($r);
-		}
-		if(headers.length) addRow([""].concat(headers));
-		$.each(rows, function(i, r){ addRow(r); });
-		return $t;
-	}
-
 	// ---- 計畫資料表格重組：(一)~(五) 都放進同一個框
 	var noRe = /^[\s　]*[（(][一二三四五][）)]/;
 	$("#todo_fm .fmData table").each(function(){
@@ -734,7 +685,6 @@ for(var ii = 5; ii < 13; ii++) {
 		if(!found) return;
 
 		var $box = $('<div class="planBox"></div>'), $sec = null, isFive = false;
-		var $fiveBody = null, fiveTokens = [], fiveHtml = [];
 		$t.find("tr").each(function(){
 			var $cells = $(this).children("td, th"), $first = $cells.first();
 			if(noRe.test($first.text())) {
@@ -749,10 +699,8 @@ for(var ii = 5; ii < 13; ii++) {
 				var $c = $(this);
 				if($.trim($c.text()) === "" && $c.find("input, img, a, select, textarea").length === 0) return;
 				if(isFive) {
-					// (五)：先收集文字，迴圈結束後統一重組成表格
-					$fiveBody = $sec.find(".planBody");
-					fiveTokens = fiveTokens.concat(textTokens($c));
-					fiveHtml.push($c.html());
+					// (五)：保留原本 html 不改動(版面由 col-xs-* 對應 CSS 處理)
+					$sec.find(".planBody").append($('<div class="planItem"></div>').html($c.html()));
 				}
 				else {
 					// (一)~(四)：把並排的每一項拆開，各佔一行
@@ -762,11 +710,6 @@ for(var ii = 5; ii < 13; ii++) {
 				}
 			});
 		});
-		if($fiveBody) {
-			var $ft = buildFiveTable(fiveTokens);
-			if($ft) $fiveBody.append($ft);
-			else $.each(fiveHtml, function(i, h){ $fiveBody.append($('<div class="planItem"></div>').html(h)); });
-		}
 		var $d = $t.closest(".fmData");
 		$t.replaceWith($box);
 		$d.addClass("hasPlan");
@@ -822,7 +765,7 @@ for(var ii = 5; ii < 13; ii++) {
 	// ---- 貼齊左右邊緣的 row(如勞健退資料區塊)：左右補 16px 內距，與一般區塊(如受雇者資料)的間距一致。
 	//      判定方式(符合任一)：①外層元素的左內距不足以抵消 row 的負邊距 ②row 的內縮後左緣貼著所屬卡片邊框
 	//      已判定為貼邊下載欄位(.fileBleed)的 row、簽核區塊不處理
-	$("#todo_fm .row").not(".alignCard .row").not(":has(.fileBleed)").each(function(){
+	$("#todo_fm .row").not(".alignCard .row").not("table .row").not(":has(.fileBleed)").each(function(){
 		var p = this.parentElement, $card = $(this).closest(".card");
 		if(!p) return;
 		var pl = parseFloat($(p).css("paddingLeft")) || 0, ml = parseFloat($(this).css("marginLeft")) || 0;
@@ -832,6 +775,15 @@ for(var ii = 5; ii < 13; ii++) {
 			bleed = (this.getBoundingClientRect().left - ml - cl) < 8;   // row 內容區左緣(扣掉負邊距)離卡片邊框的距離
 		}
 		if(bleed) $(this).addClass("nestedRow");
+	});
+
+	// ---- 表頭 th 內直接放 col-xs-* 欄位(如分配項目/分配金額/參考比例)：包進 row，
+	//      與下方內容列的負邊距/內距一致，標題才會與內容對齊(只調整版面，不動內容)
+	$("#todo_fm .fmData table th").each(function(){
+		var $th = $(this);
+		if($th.children('[class*="col-xs-"]').length && !$th.children(".row").length) {
+			$th.addClass("colHead").wrapInner('<div class="row hdrRow"></div>');
+		}
 	});
 
 	// ---- 標題列(單一跨欄儲存格)
