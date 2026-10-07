@@ -1,6 +1,6 @@
 @extends('layout.blankBS5')
 @section('content')
-<!-- history-view-rev: 2026-10-07-r3 -->
+<!-- history-view-rev: 2026-10-07-r4 -->
 <style>
 	/* 整個畫面置中：外層與內層 container 都水平置中，每一列內容也置中 */
 	#hist_page,
@@ -424,6 +424,19 @@ for(var ii = 5; ii < 13; ii++) {
 
 
 })();
+
+// ---- 整個畫面置中：layout 把內容放在偏左的容器時，CSS 的 margin:auto 無法讓內容回到視窗中央，
+//      這裡量出頁面容器中心與視窗中心的差，用 position:relative 平移補正(視窗縮放時重算)
+function centerPage() {
+	var $p = $("#hist_page");
+	if(!$p.length) return;
+	$p.css({position: "relative", left: 0});
+	var r = $p[0].getBoundingClientRect();
+	var delta = (document.documentElement.clientWidth / 2) - (r.left + r.width / 2);
+	$p.css("left", Math.abs(delta) > 1 ? delta + "px" : 0);
+}
+centerPage();
+$(window).on("load resize", centerPage);
 </script>
 @endif
 @endsection
