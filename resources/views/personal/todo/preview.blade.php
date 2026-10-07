@@ -1,6 +1,6 @@
 @extends('layout.default')
 @section("content")
-<!-- preview-view-rev: 2026-10-07-r6 -->
+<!-- preview-view-rev: 2026-10-07-r8 -->
 <style>
 	/* 本頁為 Bootstrap 3 版型(panel / col-xs-*)：沿用簽核頁(sign)的樣式，gutter 為 15px */
 	#prev_fm .row {
@@ -188,9 +188,13 @@
 		width: 100%;
 		max-width: none;
 	}
+	#prev_fm > .row {
+		display: block;          /* 外層 row 不可用 flex，否則 panel 會縮成內容寬度 */
+		margin-top: 0;
+	}
 	#prev_fm .panel-boss,
 	#prev_fm .panel {
-		width: auto;
+		width: 100%;
 		max-width: none;
 		float: none;
 		margin-left: 0;
@@ -456,10 +460,29 @@ for(ii = 5; ii < 13; ii++)
 		});
 	});
 
-	// ---- 整個表單區塊與頁面上方「檢視表單內容」標題線(hr)同寬同位置
+	// ---- 整個表單區塊與頁面上方「檢視表單內容」標題線同寬同位置
+	//      標題線取「表單前面、距離表單最近的 hr」(不可取整頁第一個 hr，那可能是選單裡的分隔線)；
+	//      找不到 hr 時，改找含「檢視表單內容」文字、且有下邊框的元素
+	function findTitleLine($c) {
+		var hrs = $("hr").toArray().filter(function(h){
+			return !$.contains($c[0], h) && (h.compareDocumentPosition($c[0]) & Node.DOCUMENT_POSITION_FOLLOWING);
+		});
+		if(hrs.length) return $(hrs[hrs.length - 1]);
+		var $t = $("body *").filter(function(){
+			return !$.contains($c[0], this) && this !== $c[0] && $(this).children().length === 0 && $.trim($(this).text()) === "檢視表單內容";
+		}).first();
+		var $e = $t;
+		while($e.length && $e[0] !== document.body) {
+			if((parseFloat($e.css("borderBottomWidth")) || 0) > 0) return $e;
+			$e = $e.parent();
+		}
+		return $();
+	}
 	function alignPanel() {
-		var $c = $("#prev_fm"), $hr = $("hr").not($c.find("hr")).first();
-		if(!$c.length || !$hr.length) return;
+		var $c = $("#prev_fm");
+		if(!$c.length) return;
+		var $hr = findTitleLine($c);
+		if(!$hr.length) return;
 		$c.css({width: "", maxWidth: "", marginLeft: "", marginRight: ""});
 		var r = $hr[0].getBoundingClientRect(), t = $c[0].getBoundingClientRect();
 		var ml = parseFloat($c.css("marginLeft")) || 0;
