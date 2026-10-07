@@ -1,6 +1,6 @@
 @extends('layout.blankBS5')
 @section('content')
-<!-- flowtracking-view-rev: 2026-10-07-r2 -->
+<!-- flowtracking-view-rev: 2026-10-07-r3 -->
 <style>
 	.flow-info-section{
 		padding-bottom: 1.5rem;
@@ -244,6 +244,28 @@
 		d.innerHTML = html;
 		body.appendChild(d);
 	}
+
+	// 「參考比例」欄：小數(0.1)改以百分比(10%)顯示。只改畫面上的文字，不動資料與送出內容；
+	// 僅限表頭文字為「參考比例」的那一欄，且內容為 0~1 的純數字時才轉換
+	Array.prototype.forEach.call(grid.querySelectorAll(".cell-wrap table"), function(tb){
+		var idx = -1;
+		Array.prototype.some.call(tb.querySelectorAll("th"), function(th){
+			var kids = Array.prototype.slice.call(th.children);
+			for(var i = 0; i < kids.length; i++) {
+				if(kids[i].textContent.trim() === "參考比例") { idx = i; return true; }
+			}
+			return false;
+		});
+		if(idx < 0) return;
+		Array.prototype.forEach.call(tb.querySelectorAll("td .row"), function(row){
+			var c = row.children[idx];
+			if(!c) return;
+			var onlyFont = Array.prototype.every.call(c.children, function(e){ return e.tagName === "FONT"; });
+			var t = c.textContent.trim();
+			if(!onlyFont || !/^(0(\.\d+)?|1(\.0+)?)$/.test(t)) return;
+			c.textContent = parseFloat((parseFloat(t) * 100).toFixed(4)) + "%";
+		});
+	});
 
 	Array.prototype.forEach.call(grid.querySelectorAll(".cell-wrap table"), function(t){
 		if(t.parentElement.closest("table") !== grid) return;          // 只處理最外層的巢狀表格
