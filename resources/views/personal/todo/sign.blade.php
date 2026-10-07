@@ -1,6 +1,6 @@
 @extends('layout.defaultBS5')
 @section('content')
-<!-- sign-view-rev: 2026-10-07-r21 -->
+<!-- sign-view-rev: 2026-10-07-r22 -->
 <style>
 	#todo_fm .card-body .row {
 		margin-top: 10px;
@@ -307,38 +307,27 @@
 	#todo_fm .fmData table.planFive td.amt { text-align: right; }
 	#todo_fm .fmData table.planFive td:first-child { min-width: 8em; }   /* 項目名稱欄 */
 	#todo_fm .fmData table.planFive td.amt { min-width: 9em; }          /* 金額欄：欄寬即「核定金額」與「流用後金額」的間距 */
-	/* 分配項目/金額/參考比例 表 */
-	#todo_fm .fmData table.allocTable {
-		width: calc(100% - 20px);
-		margin-left: 10px;
-		border-collapse: collapse;
-		table-layout: fixed;
-		border: 1px solid #dee2e6;
+	/* 後端產生的欄位 html 使用 Bootstrap 3 的 col-xs-* 格線，Bootstrap 5 沒有這組 class，
+	   欄位會變成各佔一整行而疊在一起 → 在欄位區內補上等效的寬度 (如：分配項目/金額/參考比例 表) */
+	#todo_fm .fmData [class*="col-xs-"] {
+		float: left;
+		flex: 0 0 auto;
+		max-width: 100%;
+		padding-left: 12px;
+		padding-right: 12px;
 	}
-	#todo_fm .fmData table.allocTable th {
-		border: 1px solid #eeddc8 !important;
-		padding: 8px !important;
-	}
-	#todo_fm .fmData table.allocTable th.allocTitle {
-		width: 20%;
-		vertical-align: middle;
-	}
-	#todo_fm .fmData table.allocTable td {
-		border: none !important;
-		padding: 1px 8px !important;
-		line-height: 1.5;
-		text-align: left;
-		vertical-align: top;
-		overflow-wrap: break-word;
-	}
-	#todo_fm .fmData table.allocTable td.allocSection {
-		text-align: center;
-		color: #0000ee;
-		font-weight: bold;
-		padding-top: 8px !important;
-	}
-	#todo_fm .fmData table.allocTable td.allocSum { font-weight: bold; }
-	#todo_fm .fmData table.allocTable td.allocName { width: 35%; }
+	#todo_fm .fmData .col-xs-1 { width: 8.33333333%; }
+	#todo_fm .fmData .col-xs-2 { width: 16.66666667%; }
+	#todo_fm .fmData .col-xs-3 { width: 25.00000000%; }
+	#todo_fm .fmData .col-xs-4 { width: 33.33333333%; }
+	#todo_fm .fmData .col-xs-5 { width: 41.66666667%; }
+	#todo_fm .fmData .col-xs-6 { width: 50.00000000%; }
+	#todo_fm .fmData .col-xs-7 { width: 58.33333333%; }
+	#todo_fm .fmData .col-xs-8 { width: 66.66666667%; }
+	#todo_fm .fmData .col-xs-9 { width: 75.00000000%; }
+	#todo_fm .fmData .col-xs-10 { width: 83.33333333%; }
+	#todo_fm .fmData .col-xs-11 { width: 91.66666667%; }
+	#todo_fm .fmData .col-xs-12 { width: 100.00000000%; }
 	#todo_fm .planLabel { align-self: flex-start; }
 </style>
 
@@ -732,67 +721,6 @@ for(var ii = 5; ii < 13; ii++) {
 		$.each(rows, function(i, r){ addRow(r); });
 		return $t;
 	}
-
-	// 「分配項目 / 分配金額 / 參考比例」表：不同身份產生的 html 結構不同(有的是並排欄位、有的逐項換行)，
-	// 這裡一律只取文字，重組成固定的「標題 | 分配項目 | 分配金額 | 參考比例」表格
-	function pctText(t) {
-		if(/^(0(\.\d+)?|1(\.0+)?)$/.test(t)) return parseFloat((parseFloat(t) * 100).toFixed(4)) + "%";
-		return t;
-	}
-	function buildAllocTable(tokens) {
-		var heads = ["分配項目", "分配金額", "參考比例"], found = 0;
-		$.each(heads, function(i, x){
-			var k = $.inArray(x, tokens);
-			if(k > -1) { tokens.splice(k, 1); found++; }
-		});
-		if(found < 3) return null;
-		var num = /^[\-\d,.]+%?$/, titleRe = /項目\s*\/\s*金額$/;
-		var groups = [], g = null, i = 0, total = 0;
-		while(i < tokens.length) {
-			var t = tokens[i];
-			if(titleRe.test(t)) { g = {title: t, rows: []}; groups.push(g); i++; continue; }
-			if(num.test(t)) { i++; continue; }
-			if(!g) { g = {title: "", rows: []}; groups.push(g); }
-			var nums = [], j = i + 1;
-			while(j < tokens.length && num.test(tokens[j]) && nums.length < 2) { nums.push(tokens[j]); j++; }
-			g.rows.push(nums.length ? {name: t, amt: nums[0], ratio: nums[1] || ""} : {section: t});
-			total++;
-			i = j;
-		}
-		if(total === 0) return null;
-		var $t = $('<table class="allocTable"></table>'), $h = $("<tr></tr>");
-		$h.append("<th></th>");
-		$.each(heads, function(k, x){ $h.append($("<th></th>").text(x)); });
-		$t.append($("<thead></thead>").append($h));
-		$.each(groups, function(gi, grp){
-			if(!grp.rows.length) return;
-			var $b = $("<tbody></tbody>");
-			$.each(grp.rows, function(ri, r){
-				var $r = $("<tr></tr>");
-				if(ri === 0) $r.append($('<th class="allocTitle"></th>').attr("rowspan", grp.rows.length).text(grp.title));
-				if(r.section) {
-					$r.append($('<td colspan="3" class="allocSection"></td>').text(r.section));
-				}
-				else {
-					var sum = /^(小計|合計|總計)/.test(r.name) ? " allocSum" : "";
-					$r.append($('<td class="allocName' + sum + '"></td>').text(r.name))
-					  .append($('<td class="allocNum' + sum + '"></td>').text(r.amt))
-					  .append($('<td class="allocNum' + sum + '"></td>').text(pctText(r.ratio)));
-				}
-				$b.append($r);
-			});
-			$t.append($b);
-		});
-		return $t;
-	}
-	$("#todo_fm .fmData table").each(function(){
-		var $t = $(this);
-		if($t.parents("table").length) return;
-		var txt = $t.text();
-		if(txt.indexOf("分配項目") < 0 || txt.indexOf("分配金額") < 0 || txt.indexOf("參考比例") < 0) return;
-		var $n = buildAllocTable(textTokens($t));
-		if($n) $t.replaceWith($n);
-	});
 
 	// ---- 計畫資料表格重組：(一)~(五) 都放進同一個框
 	var noRe = /^[\s　]*[（(][一二三四五][）)]/;
