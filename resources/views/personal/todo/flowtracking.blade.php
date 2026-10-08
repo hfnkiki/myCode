@@ -1,6 +1,6 @@
 @extends('layout.blankBS5')
 @section('content')
-<!-- flowtracking-view-rev: 2026-10-07-r3 -->
+<!-- flowtracking-view-rev: 2026-10-08-r4 -->
 <style>
 	.flow-info-section{
 		padding-bottom: 1.5rem;
@@ -88,8 +88,24 @@
 		text-align: left !important;
 	}
 	.form-grid .planBox table { width: 100%; margin: 0; }
+	/* ===== 整頁置中 =====
+	   外層 container 水平置中；每一列強制為 flex 並置中(若載入的 css 沿用 float 格線，
+	   justify-content 不會生效，內容就會靠左) */
+	#flow_page {
+		float: none;
+		margin-left: auto !important;
+		margin-right: auto !important;
+	}
+	#flow_page > .row {
+		display: flex !important;
+		flex-wrap: wrap;
+		justify-content: center;
+	}
+	#flow_page > .row::before,
+	#flow_page > .row::after { display: none !important; }
+	#flow_page > .row > [class*="col-"] { float: none; }
 </style>
-<div class="container px-3 px-md-4">	
+<div class="container px-3 px-md-4" id="flow_page">	
 	<div class="row justify-content-center mt-4 mb-3">
 		<div class="col-12 col-md-10">
 			<h1 class="h4 pb-2 fw-bold border-bottom" style="color: #6c757d; border-color: #ccc !important;">
@@ -296,6 +312,29 @@
 		});
 		t.parentNode.replaceChild(box, t);
 	});
+})();
+// ---- 整頁置中：先用行內樣式把每一列設成 flex 置中(不依賴 css 是否載入/被蓋掉)，
+//      再量出頁面容器中心與視窗中心的差，用 position:relative 平移補正(視窗縮放時重算)
+(function(){
+	var page = document.getElementById("flow_page");
+	if(!page) return;
+	Array.prototype.forEach.call(page.children, function(row){
+		if(!row.classList.contains("row")) return;
+		row.style.setProperty("display", "flex", "important");
+		row.style.flexWrap = "wrap";
+		row.style.justifyContent = "center";
+		Array.prototype.forEach.call(row.children, function(c){ c.style.float = "none"; });
+	});
+	function centerPage() {
+		page.style.position = "relative";
+		page.style.left = "0px";
+		var r = page.getBoundingClientRect();
+		var delta = (document.documentElement.clientWidth / 2) - (r.left + r.width / 2);
+		page.style.left = Math.abs(delta) > 1 ? delta + "px" : "0px";
+	}
+	centerPage();
+	window.addEventListener("load", centerPage);
+	window.addEventListener("resize", centerPage);
 })();
 </script>
 @endsection
