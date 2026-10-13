@@ -1,6 +1,6 @@
 @extends('layout.blankBS5')
 @section('content')
-<!-- flowtracking-view-rev: 2026-10-13-r7 -->
+<!-- flowtracking-view-rev: 2026-10-13-r8 -->
 <style>
 	.flow-info-section{
 		padding-bottom: 1.5rem;
@@ -120,6 +120,16 @@
 		text-align: left;
 		margin-bottom: 0;
 	}
+	/* ===== 整頁文字大小：基準 18px(原本 16px，加大 2px) =====
+	   要再調整，改這裡的 18px 即可；輸入框/標題列原本有自己的大小，所以另外列出 */
+	#flow_page { font-size: 18px; }
+	#flow_page .form-control,
+	#flow_page .form-select,
+	#flow_page textarea,
+	#flow_page pre,
+	#flow_page table,
+	#flow_page .alert { font-size: inherit; }
+	#flow_page .form-grid th[colspan] { font-size: 18px !important; }   /* 區段標題列(原行內 16px) */
 </style>
 <div class="container-fluid px-3 px-md-4" id="flow_page">	
 	<div class="row justify-content-center mt-4 mb-3">

@@ -1,6 +1,6 @@
 @extends('layout.blankBS5')
 @section('content')
-<!-- history-view-rev: 2026-10-13-r7 -->
+<!-- history-view-rev: 2026-10-13-r8 -->
 <style>
 	/* 整個畫面置中：外層與內層 container 都水平置中，每一列內容也置中 */
 	/* 整頁約佔畫面 8 成、左右置中；要更寬/更窄改 #hist_page 的百分比 */
@@ -229,6 +229,16 @@
 	#hist_fm .fmData table .row { margin-top: 0; }
 	#hist_fm .planLabel { align-self: flex-start; }
 	/* 欄位區塊標題(基本資料、申請資訊…)與標籤一致：大地色底、深灰字、置中(見上方 .labelDiv) */
+	/* ===== 整頁文字大小：基準 18px(原本 16px，加大 2px) =====
+	   要再調整，改這裡的 18px 即可；輸入框/區段標題原本有自己的大小，所以另外列出 */
+	#hist_page { font-size: 18px; }
+	#hist_page .form-control,
+	#hist_page .form-select,
+	#hist_page textarea,
+	#hist_page pre,
+	#hist_page table,
+	#hist_page .alert { font-size: inherit; }
+	#hist_page .labelDiv { font-size: 18px !important; }   /* 區段標題(原行內 16px) */
 </style>
 <div class="container-fluid px-3 px-md-4" id="hist_page">
 	<div class="row justify-content-center">
