@@ -1,6 +1,6 @@
 @extends('layout.blankBS5')
 @section('content')
-<!-- flowtracking-view-rev: 2026-10-13-r5 -->
+<!-- flowtracking-view-rev: 2026-10-13-r6 -->
 <style>
 	.flow-info-section{
 		padding-bottom: 1.5rem;
@@ -88,13 +88,18 @@
 		text-align: left !important;
 	}
 	.form-grid .planBox table { width: 100%; margin: 0; }
-	/* ===== 整頁滿版 =====
-	   外層用 container-fluid、欄位用 col-12，內容撐滿整個視窗寬度(保留左右 px-3 / px-md-4 的邊距)；
+	/* ===== 整頁寬度 =====
+	   外層用 container-fluid 並設為視窗寬度的 80%、欄位用 col-12；
 	   每一列強制為 flex，不因 css 沿用 float 格線而靠左 */
 	#flow_page {
 		float: none;
+		width: 80%;                 /* 約佔畫面 8 成，左右置中；要更寬/更窄改這個百分比 */
+		max-width: none;
 		margin-left: auto !important;
 		margin-right: auto !important;
+	}
+	@media (max-width: 767.98px) {
+		#flow_page { width: 100%; }   /* 手機寬度不縮小 */
 	}
 	#flow_page > .row {
 		display: flex !important;
@@ -313,7 +318,7 @@
 		t.parentNode.replaceChild(box, t);
 	});
 })();
-// ---- 整頁滿版：每一列用行內樣式強制 flex(不依賴 css 是否載入/被蓋掉)
+// ---- 整頁寬度：每一列用行內樣式強制 flex(不依賴 css 是否載入/被蓋掉)
 (function(){
 	var page = document.getElementById("flow_page");
 	if(!page) return;
