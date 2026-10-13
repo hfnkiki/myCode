@@ -1,6 +1,6 @@
 @extends('layout.blankBS5')
 @section('content')
-<!-- flowtracking-view-rev: 2026-10-08-r4 -->
+<!-- flowtracking-view-rev: 2026-10-13-r5 -->
 <style>
 	.flow-info-section{
 		padding-bottom: 1.5rem;
@@ -88,9 +88,9 @@
 		text-align: left !important;
 	}
 	.form-grid .planBox table { width: 100%; margin: 0; }
-	/* ===== 整頁置中 =====
-	   外層 container 水平置中；每一列強制為 flex 並置中(若載入的 css 沿用 float 格線，
-	   justify-content 不會生效，內容就會靠左) */
+	/* ===== 整頁滿版 =====
+	   外層用 container-fluid、欄位用 col-12，內容撐滿整個視窗寬度(保留左右 px-3 / px-md-4 的邊距)；
+	   每一列強制為 flex，不因 css 沿用 float 格線而靠左 */
 	#flow_page {
 		float: none;
 		margin-left: auto !important;
@@ -105,9 +105,9 @@
 	#flow_page > .row::after { display: none !important; }
 	#flow_page > .row > [class*="col-"] { float: none; }
 </style>
-<div class="container px-3 px-md-4" id="flow_page">	
+<div class="container-fluid px-3 px-md-4" id="flow_page">	
 	<div class="row justify-content-center mt-4 mb-3">
-		<div class="col-12 col-md-10">
+		<div class="col-12">
 			<h1 class="h4 pb-2 fw-bold border-bottom" style="color: #6c757d; border-color: #ccc !important;">
 				{{trans('menu.flowTracking')}}
 			</h1>
@@ -115,14 +115,14 @@
 	</div>
 
 	<div class="row justify-content-center">
-		<div class="col-12 col-md-10">
+		<div class="col-12">
 			<pre id="msg" class="alert alert-danger text-center fw-bold" style="{{isset($msg)? '': 'display:none;'}}">{{isset($msg)? $msg: ''}}</pre>
 		</div>
 	</div>
 
 	@if(isset($fields))
 	<div class="row justify-content-center mt-2">
-		<div class="col-12 col-md-10">
+		<div class="col-12">
 			<div class="flow-info-section">
 				<div class="row align-items-center g-3">
 					<div class="col-md-2 col-12 fw-bold text-dark">
@@ -175,7 +175,7 @@
 	@endphp
 
 	<div class="row justify-content-center mb-5">
-		<div class="col-12 col-md-10">
+		<div class="col-12">
 			<div class="table-responsive">
 				<table class="table form-table rwd-form-table form-grid align-middle w-100 mb-0">
 					<colgroup>
@@ -313,8 +313,7 @@
 		t.parentNode.replaceChild(box, t);
 	});
 })();
-// ---- 整頁置中：先用行內樣式把每一列設成 flex 置中(不依賴 css 是否載入/被蓋掉)，
-//      再量出頁面容器中心與視窗中心的差，用 position:relative 平移補正(視窗縮放時重算)
+// ---- 整頁滿版：每一列用行內樣式強制 flex(不依賴 css 是否載入/被蓋掉)
 (function(){
 	var page = document.getElementById("flow_page");
 	if(!page) return;
@@ -325,16 +324,6 @@
 		row.style.justifyContent = "center";
 		Array.prototype.forEach.call(row.children, function(c){ c.style.float = "none"; });
 	});
-	function centerPage() {
-		page.style.position = "relative";
-		page.style.left = "0px";
-		var r = page.getBoundingClientRect();
-		var delta = (document.documentElement.clientWidth / 2) - (r.left + r.width / 2);
-		page.style.left = Math.abs(delta) > 1 ? delta + "px" : "0px";
-	}
-	centerPage();
-	window.addEventListener("load", centerPage);
-	window.addEventListener("resize", centerPage);
 })();
 </script>
 @endsection
