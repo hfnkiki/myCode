@@ -1,6 +1,6 @@
 @extends('layout.blankBS5')
 @section('content')
-<!-- flowtracking-view-rev: 2026-10-13-r6 -->
+<!-- flowtracking-view-rev: 2026-10-13-r7 -->
 <style>
 	.flow-info-section{
 		padding-bottom: 1.5rem;
@@ -108,7 +108,18 @@
 	}
 	#flow_page > .row::before,
 	#flow_page > .row::after { display: none !important; }
-	#flow_page > .row > [class*="col-"] { float: none; }
+	#flow_page > .row > [class*="col-"] {
+		float: none;
+		flex: 0 0 100%;             /* 欄位撐滿整列，標題/流程名稱/表格都與下方明細表同寬 */
+		width: 100%;
+		max-width: 100%;
+	}
+	/* 頁面標題：靠左、字體加大 */
+	#flow_page h1 {
+		font-size: 1.9rem;
+		text-align: left;
+		margin-bottom: 0;
+	}
 </style>
 <div class="container-fluid px-3 px-md-4" id="flow_page">	
 	<div class="row justify-content-center mt-4 mb-3">
