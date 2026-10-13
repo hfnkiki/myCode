@@ -1,13 +1,26 @@
 @extends('layout.blankBS5')
 @section('content')
-<!-- history-view-rev: 2026-10-07-r6 -->
+<!-- history-view-rev: 2026-10-13-r7 -->
 <style>
 	/* 整個畫面置中：外層與內層 container 都水平置中，每一列內容也置中 */
-	#hist_page,
-	#hist_fm {
+	/* 整頁約佔畫面 8 成、左右置中；要更寬/更窄改 #hist_page 的百分比 */
+	#hist_page {
 		float: none;
+		width: 80%;
+		max-width: none;
 		margin-left: auto !important;
 		margin-right: auto !important;
+	}
+	@media (max-width: 767.98px) {
+		#hist_page { width: 100%; }
+	}
+	/* 內層容器吃滿外層寬度，不再各自縮小 */
+	#hist_fm {
+		float: none;
+		width: 100%;
+		max-width: none;
+		margin-left: 0 !important;
+		margin-right: 0 !important;
 	}
 	/* 讓每一列真的是 flex 並置中：若載入的 css 沒有把 .row 當 flex(例如沿用 float 格線)，
 	   justify-content 不會生效，內容就會靠左 */
@@ -26,6 +39,9 @@
 	#hist_page > .row > [class*="col-"],
 	#hist_fm > .row > [class*="col-"] {
 		float: none;
+		flex: 0 0 100%;      /* 標題、訊息、卡片都撐滿整列(= 外層的 80%) */
+		width: 100%;
+		max-width: 100%;
 	}
 	#hist_fm .card-body .labelDiv {
 		margin-top: 15px;
@@ -214,24 +230,24 @@
 	#hist_fm .planLabel { align-self: flex-start; }
 	/* 欄位區塊標題(基本資料、申請資訊…)與標籤一致：大地色底、深灰字、置中(見上方 .labelDiv) */
 </style>
-<div class="container px-3 px-md-4" id="hist_page">
+<div class="container-fluid px-3 px-md-4" id="hist_page">
 	<div class="row justify-content-center">
-		<div class="col-12 col-md-8">
+		<div class="col-12">
 			<h1 class="h3 my-4 fw-bold" style="color: #6c757d;">{{trans('menu.historySearching')}}</h1>
 		</div>
 	</div>
 
 	<div class="row justify-content-center">
-		<div class="col-12 col-md-8">
+		<div class="col-12">
 			<pre id="msg" class="alert alert-danger text-center fw-bold" style="{{isset($msg)? '': 'display:none;'}}">{{isset($msg)? $msg: ''}}</pre>
 		</div>
 	</div>
 
 	@if(isset($fields))
-	<div class="container px-3 px-md-4" id="hist_fm">
+	<div class="container-fluid px-0" id="hist_fm">
 		
 		<div class="row justify-content-center mb-4">
-			<div class="col-12 col-md-8">
+			<div class="col-12">
 				<div class="card card-boss shadow-sm">
 					<div class="card-header" style="background-color: #f4e4d4; border-bottom: none; padding: 1rem 1.5rem; margin-bottom:1rem;!important;">
 						<h4 class="mb-0 fw-bold d-flex align-items-center fs-4" style="color: #a06b35;">
@@ -274,7 +290,7 @@
 		</div>
 
 		<div class="row justify-content-center mb-4">
-			<div class="col-12 col-md-8">
+			<div class="col-12">
 				<div class="card card-boss shadow-sm">
 					<div class="card-body">
 					@php($roWidth = 0)
@@ -447,18 +463,6 @@ $("#hist_page, #hist_fm").children(".row").each(function(){
 	$(this).children('[class*="col-"]').css("float", "none");
 });
 
-// ---- 整個畫面置中：layout 把內容放在偏左的容器時，CSS 的 margin:auto 無法讓內容回到視窗中央，
-//      這裡量出頁面容器中心與視窗中心的差，用 position:relative 平移補正(視窗縮放時重算)
-function centerPage() {
-	var $p = $("#hist_page");
-	if(!$p.length) return;
-	$p.css({position: "relative", left: 0});
-	var r = $p[0].getBoundingClientRect();
-	var delta = (document.documentElement.clientWidth / 2) - (r.left + r.width / 2);
-	$p.css("left", Math.abs(delta) > 1 ? delta + "px" : 0);
-}
-centerPage();
-$(window).on("load resize", centerPage);
 </script>
 @endif
 @endsection
